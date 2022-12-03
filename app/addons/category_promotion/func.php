@@ -168,24 +168,11 @@ function fn_category_promotion_get_promotions_pre(&$params, $items_per_page, $la
 }
 
 function fn_category_promotion_get_promotions($params, &$fields, $sortings, &$condition, $join, $group, $lang_code) {
-    if (defined('ORDER_MANAGEMENT') && !empty($params['promotion_id'])) {
-        return;
-    }
     if (!empty($params['product_ids'])) {
         $condition .=' AND (' . fn_find_array_in_set($params['product_ids'], "products", false) . ')';
     }
-    if (!empty($params['fields'])) {
-        if (!is_array($params['fields'])) {
-            $params['fields'] = explode(',', $params['fields']);
-        }
-        $fields = $params['fields'];
-    }
     if (!empty($params['category_id'])) {
         $condition .=' AND (' . fn_find_array_in_set([$params['category_id']], "categories", true) . ')';
-    }
-    if (!empty($params['exclude_promotion_ids'])) {
-        if (!is_array($params['exclude_promotion_ids'])) $params['exclude_promotion_ids'] = [$params['exclude_promotion_ids']];
-        $condition .= db_quote(' AND ?:promotions.promotion_id NOT IN (?a)', $params['exclude_promotion_ids']);
     }
 }
 
@@ -198,7 +185,7 @@ function fn_category_promotion_get_promotions_post($params, $items_per_page, $la
             $conditions = (is_string($promotion['conditions'])) ? unserialize($promotion['conditions']) : $promotion['conditions'];
             fn_cleanup_promotion_condition($conditions, ['usergroup', 'users']);
             $promotion['conditions'] = $conditions;
-            $cart_products = [];
+            $data = $cart_products = [];
             return fn_check_promotion_conditions($promotion, $data, Tygh::$app['session']['auth'], $cart_products);
         });
     }
