@@ -205,14 +205,9 @@ function fn_promotion_motivation_get_promotions($params, &$fields, $sortings, &$
             $condition .=' AND (' . fn_find_array_in_set([$params['product_or_bonus_product']], "products", false) . ' OR ' . fn_find_array_in_set([$params['product_or_bonus_product']], "bonus_products", false) . ' OR ' . fn_find_array_in_set($category_ids, "condition_categories", false) . ')';
         }
     }
-    if (!empty($params['exclude_promotion_ids'])) {
-        if (!is_array($params['exclude_promotion_ids'])) $params['exclude_promotion_ids'] = [$params['exclude_promotion_ids']];
-        $condition .= db_quote(' AND ?:promotions.promotion_id NOT IN (?a)', $params['exclude_promotion_ids']);
-    }
 }
 
-function fn_promotion_motivation_get_product_data_post(&$product_data, $auth, $preview, $lang_code)
-{
+function fn_promotion_motivation_get_product_data_post(&$product_data, $auth, $preview, $lang_code) {
     if (!empty($product_data['product_id']) && SiteArea::isStorefront(AREA)) {
         list($promotions) = fn_get_promotions(['product_or_bonus_product' => $product_data['product_id'], 'usergroup_ids' => Tygh::$app['session']['auth']['usergroup_ids'], 'active' => true]);
 
@@ -228,7 +223,7 @@ function fn_promotion_motivation_get_product_data_post(&$product_data, $auth, $p
     }
 }
 
-function fn_promotion_motivation_get_products_before_select(&$params, $join, &$condition, $u_condition, $inventory_join_cond, $sortings, $total, $items_per_page, $lang_code, $having){
+function fn_promotion_motivation_get_products_before_select(&$params, $join, &$condition, $u_condition, $inventory_join_cond, $sortings, $total, $items_per_page, $lang_code, $having) {
     if (
         !empty($params['promotion_pid'])
         && !empty($params['block_data']['content']['items']['filling'])
@@ -260,6 +255,7 @@ function fn_promotion_motivation_calculate_cart_post($cart, $auth, $calculate_sh
         $applied_promotions = array_keys($cart['applied_promotions']);
         foreach ($cart_products as &$product) {
             list($promotions, ) = fn_get_promotions(['product_or_bonus_product' => $product['product_id'], 'zone' => 'cart', 'usergroup_ids' => $auth['usergroup_ids'], 'active' => true, 'track' => true, 'exclude_promotion_ids' => $applied_promotions], 10);
+
             if ($promotions) {
                 $product['participates_in_promo'] = reset($promotions);
             }

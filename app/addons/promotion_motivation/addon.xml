@@ -16,5 +16,6 @@
         <item lang="ru" id="motivation_subtotal_gt">Закажите еще на [diff] и получите подарок [gift]</item>
         <item lang="ru" id="motivation_subtotal_gte">Закажите еще на [diff] и получите подарок [gift]</item>
         <item lang="ru" id="move_to_catalog">Перейти в Каталог</item>
+        <item lang="ru" id="promotion_motivation.participates_in_promo"><![CDATA[Товар участвует в промо <a href=[promotion_link]>[promotion]</a>. Перейдите в промо и добавьте товар, чтобы получить бонус.]]></item>
     </language_variables>
 </addon>
