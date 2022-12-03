@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<addon scheme="2.0">
+    <id>calendar_delivery</id>
+    <name>Calendar delivery</name>
+    <description><![CDATA[Добавляе новый процессор оффлайн доставки с календарем © <a href="http://cs-market.com" target="_blank">CS-Market</a>]]></description>
+    <priority>26732300</priority>
+    <version>1.0.4</version>
+    <position>0</position>
+    <status>active</status>
+    <default_language>ru</default_language>
+    <supplier>CS-Market</supplier>
+    <supplier_link>http://cs-market.com/</supplier_link>
+    <has_icon>Y</has_icon>
+    <default_language>ru</default_language>
+    <compatibility>
+        <core_version>
+            <min>4.3.5</min>
+        </core_version>
+    </compatibility>
+    <language_variables>        
+        <item lang="ru" id="delivery_date">Дата доставки</item>
+        <item lang="ru" id="calendar_delivery">Календарь</item>
+        <item lang="ru" id="tomorrow">Завтра</item>
+        <item lang="ru" id="after_tomorrow">Послезавтра</item>
+        <item lang="ru" id="calendar_delivery.nearest_delivery">Ближайшая доставка</item>
+        <item lang="ru" id="calendar_delivery.working_time_till">Доставка на ближайшую дату формируется до</item>
+        <item lang="ru" id="calendar_delivery.saturday_shipping">Доставка в субботу</item>
+        <item lang="ru" id="calendar_delivery.sunday_shipping">Доставка в воскресенье</item>
+        <item lang="ru" id="calendar_delivery.monday_rule">Доставка в понедельник при заказе в выходные</item>
+        <item lang="ru" id="calendar_delivery.choose_another_day_vendor">Выберите другой день доставки по продавцу</item>
+        <item lang="ru" id="calendar_delivery.choose_another_day">Выберите другой день доставки</item>
+        <item lang="ru" id="calendar_delivery.period_start">Время начала периода</item>
+        <item lang="ru" id="calendar_delivery.period_finish">Время окончания периода</item>
+        <item lang="ru" id="calendar_delivery.period_step">Шаг периода</item>
+        <item lang="ru" id="period_start_error_message">Пожалуйста, введите корректное значение времени</item>
+        <item lang="ru" id="calendar_delivery.choose_another_period_vendor">Выберите другой период доставки по продавцу</item>
+        <item lang="ru" id="calendar_delivery.choose_another_period">Выберите другой период доставки</item>
+        <item lang="ru" id="calendar_delivery.delivery_period">Период доставки</item>
+        <item lang="ru" id="calendar_delivery.exim_user_delivery_date">Delivery on %day%</item>
+        <item lang="ru" id="calendar_delivery.exception_time_till">День-исключение работает до</item>
+        <item lang="ru" id="calendar_delivery.exception_days">Дни-исключения</item>
+        <item lang="ru" id="calendar_delivery.offer_documents">Прелдагать оригиналы документов</item>
+        <item lang="ru" id="calendar_delivery.offer_documents_checked">Отмечено по-умолчанию</item>
+        <item lang="ru" id="calendar_delivery.settings_depends_on_parent">Настройки зависят от общих настроек</item>
+        <item lang="ru" id="calendar_delivery.holidays">Выходные дни</item>
+        <item lang="ru" id="calendar_delivery.ignore_exception_days">Игнорировать дни-исключения</item>
+
+        <item lang="ru" id="weekday_exim_1">Monday</item>
+        <item lang="ru" id="weekday_exim_2">Tuesday</item>
+        <item lang="ru" id="weekday_exim_3">Wednesday</item>
+        <item lang="ru" id="weekday_exim_4">Thursday</item>
+        <item lang="ru" id="weekday_exim_5">Friday</item>
+        <item lang="ru" id="weekday_exim_6">Saturday</item>
+        <item lang="ru" id="weekday_exim_0">Sunday</item>
+    </language_variables>
+
+    <queries>
+        <item>ALTER TABLE `?:orders` ADD `delivery_date` int(11) unsigned NOT NULL DEFAULT 0;</item>
+        <item for="uninstall">ALTER TABLE `?:orders` DROP `delivery_date`;</item>
+
+        <item>ALTER TABLE `?:orders` ADD `delivery_period` varchar(30) NOT NULL default '';</item>
+        <item for="uninstall">ALTER TABLE `?:orders` DROP `delivery_period`;</item>
+
+        <item >ALTER TABLE `?:companies`
+            ADD `nearest_delivery` VARCHAR(1) NOT NULL DEFAULT '1',
+            ADD `working_time_till` VARCHAR(8) NOT NULL DEFAULT '17:00',
+            ADD `saturday_shipping` VARCHAR(1) NOT NULL DEFAULT 'Y',
+            ADD `sunday_shipping` VARCHAR(1) NOT NULL DEFAULT 'Y',
+            ADD `monday_rule` VARCHAR(1) NOT NULL DEFAULT 'Y',
+            ADD `period_start` varchar(8) NOT NULL DEFAULT '',
+            ADD `period_finish` varchar(8) NOT NULL DEFAULT '',
+            ADD `period_step` varchar(8) NOT NULL DEFAULT '';
+        </item>
+        <item for="uninstall" >ALTER TABLE `?:companies`
+            DROP `nearest_delivery`,
+            DROP `working_time_till`,
+            DROP `saturday_shipping`,
+            DROP `sunday_shipping`,
+            DROP `monday_rule`,
+            DROP `period_start`,
+            DROP `period_finish`,
+            DROP `period_step`
+        </item>
+
+        <item>ALTER TABLE `?:users` ADD `delivery_date` VARCHAR(7) NOT NULL default '1111111';</item>
+        <item for="uninstall">ALTER TABLE `?:users` DROP `delivery_date`;</item>
+
+        <item>ALTER TABLE `?:users` ADD `ignore_exception_days` VARCHAR(1) NOT NULL DEFAULT 'N';</item>
+        <item for="uninstall">ALTER TABLE `?:users` DROP `ignore_exception_days`;</item>
+
+        <item>ALTER TABLE `?:usergroups` ADD `working_time_till` varchar(8)  NOT NULL default '';</item>
+        <item for="uninstall">ALTER TABLE `?:usergroups` DROP `working_time_till`;</item>
+
+        <item>ALTER TABLE `?:usergroups` ADD `delivery_date` VARCHAR(7) NOT NULL default '1111111';</item>
+        <item for="uninstall">ALTER TABLE `?:usergroups` DROP `delivery_date`;</item>
+
+        <item>
+            CREATE TABLE `?:user_storages` (
+                `storage_id` mediumint(8) unsigned NOT NULL,
+                `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+                `delivery_date` varchar(7) NOT NULL DEFAULT '1111111',
+                PRIMARY KEY (`storage_id`,`user_id`),
+                KEY `user_id` (`user_id`)
+            ) ENGINE=MyISAM DEFAULT CHARSET UTF8;
+        </item>
+        <item for="uninstall">DROP TABLE IF EXISTS `?:user_storages`;</item>
+    </queries>
+
+    <functions>
+        <item for="install">fn_calendar_delivery_install</item>
+        <item for="uninstall">fn_calendar_delivery_uninstall</item>
+    </functions>
+</addon>
