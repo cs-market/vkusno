@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<addon scheme="3.0">
+    <id>deployer</id>
+    <name>Deployer</name>
+    <description><![CDATA[Helps to configure deployment from your store's git repository© <a href="http://cs-market.com" target="_blank">CS-Market</a>]]></description>
+    <priority>26732300</priority>
+    <version>1.0.1</version>
+    <position>0</position>
+    <status>active</status>
+    <default_language>en</default_language>
+    <supplier>CS-Market</supplier>
+    <supplier_link>http://cs-market.com/</supplier_link>
+    <has_icon>Y</has_icon>
+    <settings>
+        <sections>
+            <section id="general">
+                <items>
+                    <item id="branch">
+                        <type>input</type>
+                        <default_value>production</default_value>
+                    </item>
+                    <item id="remote">
+                        <type>input</type>
+                        <default_value>origin</default_value>
+                    </item>
+                    <item id="reset">
+                        <type>checkbox</type>
+                        <default_value>Y</default_value>
+                    </item>
+                    <item id="migrations_path">
+                        <type>input</type>
+                        <default_value>var/migrations/</default_value>
+                    </item>
+                    <item id="git_path">
+                        <type>input</type>
+                    </item>
+                    <item id="webhook_info">
+                        <type>info</type>
+                        <handler>fn_deployer_webhook_info</handler>
+                    </item>
+                    <item id="token">
+                        <type>hidden</type>
+                    </item>
+                </items>
+            </section>
+        </sections>
+    </settings>
+    <functions>
+        <item for="install">fn_deployer_install</item>
+    </functions>
+</addon>
