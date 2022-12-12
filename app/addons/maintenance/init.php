@@ -8,5 +8,6 @@ fn_register_hooks(
     'update_product_prices',
     ['update_product_pre', 1000],
     'update_profile',
-    'get_promotions'
+    'get_promotions',
+    'dispatch_assign_template',
 );

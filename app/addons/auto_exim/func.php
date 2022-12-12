@@ -96,7 +96,6 @@ function fn_auto_exim_update_company_pre(&$company_data, $company_id, $lang_code
 
 function fn_auto_exim_send_order_notification($order, $edp_data, $force_notification, $notified, $send_order_notification) {
     if (is_callable('fn_save_order_log')) fn_save_order_log($order['order_id'], Tygh::$app['session']['auth']['user_id'], '', 'Инициирована процедура выгрузки в файл', TIME);
-
     if (db_get_field('SELECT export_orders FROM ?:companies WHERE company_id = ?i AND FIND_IN_SET(?s, export_statuses)', $order['company_id'], $order['status']) == 'C') {
         if (is_callable('fn_save_order_log')) fn_save_order_log($order['order_id'], Tygh::$app['session']['auth']['user_id'], '', 'Выбран csv формат выгрузки в файл', TIME);
         fn_define('DB_LIMIT_SELECT_ROW', 30);
