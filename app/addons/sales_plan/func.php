@@ -86,7 +86,7 @@ function fn_generate_sales_report($params) {
             . $elements_group
             . " ORDER BY firstname ASC, user_id"
         );
-fn_print_die($elements_condition);
+
         $time_condition = db_quote(" timestamp BETWEEN ?i AND ?i", $params['time_from'], $params['time_to']);
         $group_condition = ' GROUP BY `interval`';
         if ($params['group_by'] == 'year') {
