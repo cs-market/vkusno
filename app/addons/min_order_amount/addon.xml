@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<addon scheme="2.0">
+    <id>min_order_amount</id>
+    <name>Smart distribution: Min order amount</name>
+    <description><![CDATA[Добавляет ограничение заказа по минимальной сумме © <a href="http://cs-market.com" target="_blank">CS-Market</a>]]></description>
+    <priority>26732300</priority>
+    <version>1.0.1</version>
+    <position>0</position>
+    <status>active</status>
+    <default_language>ru</default_language>
+    <supplier>CS-Market</supplier>
+    <supplier_link>http://cs-market.com/</supplier_link>
+    <has_icon>Y</has_icon>
+    <compatibility>
+        <dependencies>product_groups</dependencies>
+        <core_version>
+            <min>4.3.5</min>
+        </core_version>
+    </compatibility>
+    <language_variables>
+        <item lang="en" id="min_order_amount">Min order amount</item>
+        <item lang="ru" id="min_order_amount">Минимальная сумма заказа</item>
+        <item lang="en" id="allow_additional_ordering">Allow additional ordering</item>
+        <item lang="ru" id="allow_additional_ordering">Разрешить дозаказ</item>
+        
+        <item lang="en" id="min_order_weight">Min order weight</item>
+        <item lang="ru" id="min_order_weight">Минимальный вес заказа</item>
+
+        <item lang="ru" id="notify_manager_order_insufficient">Уведомлять менеджеров если сумма заказа меньше среднего</item>
+        <item lang="ru" id="with_company">для продавца</item>
+    </language_variables>
+    <queries>
+        <item>ALTER TABLE `?:companies` ADD `min_order_amount` mediumint(8) UNSIGNED NOT NULL DEFAULT 0;</item>
+        <item for="uninstall">ALTER TABLE `?:companies` DROP `min_order_amount`;</item>
+        <item>ALTER TABLE `?:companies` ADD `allow_additional_ordering` char(1) NOT NULL DEFAULT 'N';</item>
+        <item for="uninstall">ALTER TABLE `?:companies` DROP `allow_additional_ordering`;</item>
+        <item>ALTER TABLE `?:usergroups` ADD `min_order_amount` mediumint(8) UNSIGNED NOT NULL DEFAULT 0;</item>
+        <item for="uninstall">ALTER TABLE `?:usergroups` DROP `min_order_amount`;</item>
+        <item>ALTER TABLE `?:users` ADD `min_order_amount` mediumint(8) UNSIGNED NOT NULL DEFAULT 0;</item>
+        <item for="uninstall">ALTER TABLE `?:users` DROP `min_order_amount`;</item>
+        
+        <item>ALTER TABLE `?:product_groups` ADD `min_order` mediumint(8) UNSIGNED NOT NULL DEFAULT 0 AFTER `group`;</item>
+        <item for="uninstall">ALTER TABLE `?:product_groups` DROP `min_order`;</item>
+        <item>ALTER TABLE `?:product_groups` ADD `min_order_weight` mediumint(8) UNSIGNED NOT NULL DEFAULT 0 AFTER `min_order`</item>
+        <item for="uninstall">ALTER TABLE `?:product_groups` DROP `min_order_weight`;</item>
+        
+        <item>ALTER TABLE `?:companies` ADD `min_order_weight` mediumint(8) UNSIGNED NOT NULL DEFAULT 0;</item>
+        <item for="uninstall">ALTER TABLE `?:companies` DROP `min_order_weight`;</item>        
+    </queries>
+</addon>
