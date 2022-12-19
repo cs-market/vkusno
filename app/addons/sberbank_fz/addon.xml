@@ -7,10 +7,10 @@
     <version>1.2.2</version>
     <position>0</position>
     <status>active</status>
+    <has_icon>Y</has_icon>
     <default_language>ru</default_language>
     <supplier>CS-Market</supplier>
     <supplier_link>http://cs-market.com/</supplier_link>
-    <has_icon>Y</has_icon>
     <functions>
         <item for="install">fn_sberbank_fz_install</item>
         <item for="uninstall">fn_sberbank_fz_uninstall</item>
