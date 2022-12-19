@@ -24,7 +24,7 @@
         <item lang="ru" id="allow_additional_ordering">Разрешить дозаказ</item>
         
         <item lang="en" id="min_order_weight">Min order weight</item>
-        <item lang="ru" id="min_order_weight">Минимальный вес заказа</item>
+        <item lang="ru" id="min_order_amount.min_order_weight">Минимальный вес заказа</item>
 
         <item lang="ru" id="notify_manager_order_insufficient">Уведомлять менеджеров если сумма заказа меньше среднего</item>
         <item lang="ru" id="with_company">для продавца</item>
