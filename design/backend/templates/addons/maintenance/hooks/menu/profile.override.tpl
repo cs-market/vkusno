@@ -1,4 +1,5 @@
 {hook name="menu:profile"}
+    {* REMOVE FEEDBACK *}
     {if !$show_languages_in_header_menu}
         {$smarty.capture.languages_menu nofilter}
     {/if}
