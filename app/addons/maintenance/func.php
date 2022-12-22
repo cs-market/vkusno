@@ -86,11 +86,10 @@ function fn_maintenance_dispatch_assign_template($controller, $mode, $area, &$co
 }
 
 function fn_maintenance_check_permission_manage_profiles(&$result, $user_type) {
-    // check that. TODO Allow to login vendor behalf user!!
     $can_manage_profiles = true;
 
     if (Registry::get('runtime.company_id')) {
-        $can_manage_profiles = UserTypes::isVendor($user_type) && Registry::get('runtime.company_id');
+        $can_manage_profiles = (in_array($user_type, [UserTypes::CUSTOMER, UserTypes::VENDOR])) && Registry::get('runtime.company_id');
     }
 
     $result = $can_manage_profiles;

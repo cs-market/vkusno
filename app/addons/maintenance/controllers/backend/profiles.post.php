@@ -31,7 +31,7 @@ if ($mode == 'update') {
         $active_usergroups = array_keys(array_filter($user_data['usergroups'], function($v) {return $v['status'] == 'A';}));
 
         foreach ($usergroups as $id => &$value) {
-            $value['sort_field'] = (in_array($id, $active_usergroups)) ? 'A_' . $value['usergroup'] : 'D_' . $value['usergroup'];
+            $value['sort_field'] = (!empty($active_usergroups) && in_array($id, $active_usergroups)) ? 'A_' . $value['usergroup'] : 'D_' . $value['usergroup'];
         }
         unset($value);
 
