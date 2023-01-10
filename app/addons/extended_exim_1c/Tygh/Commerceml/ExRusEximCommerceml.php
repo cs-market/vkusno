@@ -190,7 +190,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
         
 
         $this->importWarehousesFromOffersFile($data_offers, $import_params);
-        $this->importStoragesFromOffersFile($data_offers, $import_params);
+        if (Registry::get('addons.storages.status') == 'A') $this->importStoragesFromOffersFile($data_offers, $import_params);
 
         if (isset($data_offers -> {$cml['prices_types']} -> {$cml['price_type']})) {
             $params['price_offers'] = $this->dataPriceOffers($data_offers -> {$cml['prices_types']});
@@ -393,7 +393,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
             }
 
             $warehouses_amounts = $this->importProductWarehousesStock($product_id, $offer, $warehouses_amounts);
-            $storages_amounts = $this->importProductStoragesStock($product_id, $offer, $storages_amounts);
+            if (Registry::get('addons.storages.status') == 'A') $storages_amounts = $this->importProductStoragesStock($product_id, $offer, $storages_amounts);
 
             $this->addProductPrice($product_id, $prices);
             $this->addProductXmlFeaturesAsOptions($offer, $product_id, $import_params, $combination_id, [], isset($product['product_code']) ? $product['product_code'] : false);
@@ -816,6 +816,8 @@ class ExRusEximCommerceml extends RusEximCommerceml
                 $product = array('external_id' => $product['external_id']);
             }
 
+            fn_set_hook('exim_1c_pre_update_product', $product, $product_id, $xml_product_data, $cml);
+
             $product_id = fn_update_product($product, $product_id, $import_params['lang_code']);
 
             $log_message = "\n Added product: " . $product['product'] . " commerceml_id: " . strval($xml_product_data->{$cml['id']});
@@ -1002,9 +1004,9 @@ class ExRusEximCommerceml extends RusEximCommerceml
                 }
 
                 // do not disturb old orders
-                if (empty($order_info['order_id']) || $order_info['timestamp'] + SECONDS_IN_DAY * 14 < time()) {
-                    continue;
-                }
+                // if (empty($order_info['order_id']) || $order_info['timestamp'] + SECONDS_IN_DAY * 14 < time()) {
+                //     continue;
+                // }
                 $order_id = $order_info['order_id'];
                 foreach ($order_data->{$cml['products']}->{$cml['product']} as $xml_product) {
                     $product_data = $this->getProductDataByLinkType($link_type, $xml_product, $cml);
@@ -1044,11 +1046,14 @@ class ExRusEximCommerceml extends RusEximCommerceml
                             $cart['delivery_date'] = strtotime(strval($data_field->{$cml['value']}));
                         }
                     }
+                    $backup_auth = Tygh::$app['session']['auth'];
+                    Tygh::$app['session']['auth'] = $customer_auth;
 
                     fn_calculate_cart_content($cart, $customer_auth);
                     if (!fn_cart_is_empty($cart)) {
                         fn_place_order($cart, $customer_auth, 'save');
                     }
+                    Tygh::$app['session']['auth'] = $backup_auth;
                 }
 
                 foreach ($order_data->{$cml['value_fields']}->{$cml['value_field']} as $data_field) {

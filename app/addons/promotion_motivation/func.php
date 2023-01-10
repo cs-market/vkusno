@@ -48,22 +48,6 @@ function fn_promotion_motivation_promotion_apply_pre($promotions, $zone, &$data,
     }
 }
 
-if (!is_callable('fn_find_promotion_condition')) {
-    function fn_find_promotion_condition(&$conditions_group, $needle, $remove = false) {
-        foreach ($conditions_group['conditions'] as $i => $group_item) {
-            if (isset($group_item['conditions'])) {
-                $res = fn_find_promotion_condition($conditions_group['conditions'][$i], $needle, $remove);
-            } elseif ((is_array($needle) && in_array($group_item['condition'], $needle)) || $group_item['condition'] == $needle) {
-                if ($remove) unset($conditions_group['conditions'][$i]);
-                $res = $group_item;
-            }
-            if ($res) return $res;
-        }
-
-        return false;
-    }
-}
-
 function fn_promotion_get_current_value($promotion_id, $promotion, $data, $auth, $cart_products)
 {
     static $parent_orders = array();
@@ -251,7 +235,7 @@ function fn_promotion_motivation_get_products_before_select(&$params, $join, &$c
 }
 
 function fn_promotion_motivation_calculate_cart_post($cart, $auth, $calculate_shipping, $calculate_taxes, $options_style, $apply_cart_promotions, &$cart_products, $product_groups) {
-    if (!defined(API)) {
+    if (!defined('API')) {
         $applied_promotions = array_keys($cart['applied_promotions']);
         foreach ($cart_products as &$product) {
             list($promotions, ) = fn_get_promotions(['product_or_bonus_product' => $product['product_id'], 'zone' => 'cart', 'usergroup_ids' => $auth['usergroup_ids'], 'active' => true, 'track' => true, 'exclude_promotion_ids' => $applied_promotions], 10);

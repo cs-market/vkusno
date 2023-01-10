@@ -109,7 +109,7 @@ function fn_maintenance_check_rights_delete_user($user_data, $auth, &$result) {
 }
 
 function fn_maintenance_get_users($params, $fields, $sortings, &$condition, $join, $auth) {
-    if (UserTypes::isAdmin($params['user_type']) && fn_is_restricted_admin(['user_type' => $auth['user_type']])) {
+    if ((!isset($params['user_type']) || UserTypes::isAdmin($params['user_type'])) && fn_is_restricted_admin(['user_type' => $auth['user_type']])) {
         $condition['wo_root_admins'] .= db_quote(' AND is_root != ?s ', YesNo::YES);
     }
 }
@@ -278,4 +278,21 @@ function fn_init_addon_override_controllers($controller, $area = AREA)
     }
 
     return array($controllers, $addons);
+}
+
+if (!is_callable('fn_find_promotion_condition')) {
+    function fn_find_promotion_condition(&$conditions_group, $needle, $remove = false) {
+        $res = false;
+        foreach ($conditions_group['conditions'] as $i => $group_item) {
+            if (isset($group_item['conditions'])) {
+                $res = fn_find_promotion_condition($conditions_group['conditions'][$i], $needle, $remove);
+            } elseif ((is_array($needle) && in_array($group_item['condition'], $needle)) || $group_item['condition'] == $needle) {
+                if ($remove) unset($conditions_group['conditions'][$i]);
+                $res = $group_item;
+            }
+            if ($res) return $res;
+        }
+
+        return $res;
+    }
 }
