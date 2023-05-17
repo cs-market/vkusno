@@ -45,7 +45,11 @@ Tygh::$app['session'] = function ($app) {
 
     $session->cache_limiter = 'nocache';
     $session->cookie_lifetime = SESSIONS_STORAGE_ALIVE_TIME;
-    $session->cookie_path = Registry::ifGet('config.current_path', '/');
+    $cookie_path = Registry::ifGet('config.current_path', '');
+    if ($cookie_path === '') {
+        $cookie_path = '/';
+    }
+    $session->cookie_path = $cookie_path;
 
     $https_location = new Url(Registry::get('config.https_location'));
     $http_location = new Url(Registry::get('config.http_location'));
