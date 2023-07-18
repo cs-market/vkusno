@@ -1,0 +1,20 @@
+Legend:
+[+] - new feature/improvement
+[*] - functionality changes
+[!] - bugfix
+
+Version 1.7, 10 June 2019
+
+[!] Filters did not work on 4.10. Fixed
+
+Version 1.8, 22 July 2019
+
+[!] Error was displayed if search in pages is enabled. Fixed
+
+Version 1.9, 28 January 2020
+
+[!] Sorting worked incorrectly with Variations module disabled
+
+Version 1.10, 21 December 2020
+
+[!] The module was adapted to 4.12.1 version
