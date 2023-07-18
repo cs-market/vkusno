@@ -7,6 +7,7 @@ use Tygh\Settings;
 use Tygh\Registry;
 use Tygh\Storage;
 use Tygh\Enum\ProductFeatures;
+use Tygh\Enum\YesNo;
 use Tygh\Database\Connection;
 use Tygh\Enum\ProductTracking;
 use Tygh\Bootstrap;
@@ -16,9 +17,20 @@ use Tygh\Addons\ProductVariations\ServiceProvider as VariationsServiceProvider;
 
 class ExRusEximCommerceml extends RusEximCommerceml 
 {
+    const PRODUCT_STATUS_DISABLED = 'D';
     public $prices_commerseml = array();
     public $data_prices = array();
     public $storages_map = array();
+
+    public function __construct(Connection $db, Logs $log, $path_commerceml) {
+        parent::__construct($db, $log, $path_commerceml);
+
+        if ($status_commerceml = & \Tygh::$app['session']['ex_exim_1c']['status_commerceml']) {
+            $status_commerceml = array_filter($status_commerceml, function($status_data) {
+                return (isset($status_data['ttl']) && $status_data['ttl'] > TIME);
+            });
+        }
+    }
     
     public function importCategoriesFile($data_categories, $import_params, $parent_id = 0)
     {
@@ -128,13 +140,10 @@ class ExRusEximCommerceml extends RusEximCommerceml
             }
         }
 
-        if (empty($prices['base_price']) && (!empty($prices['qty_prices']) || !empty($prices['user_price']))) {
-            $_prices = fn_array_merge($prices['qty_prices'], $prices['user_price'], false);
-            $p = fn_array_column($_prices, 'price');
-            $prices['base_price'] = max($p);
+        if (empty($prices['qty_prices'])) {
+            unset($prices['qty_prices']);
+            if (empty($prices['base_price'])) unset($prices['base_price']);
         }
-
-        if (empty($prices['qty_prices'])) unset($prices['qty_prices']);
 
         return $prices;
     }
@@ -293,7 +302,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
     {
         $cml = $this->cml;
         $result = [];
-
+        $func = (Registry::get('addons.maintenance.status') == 'A') ? 'fn_maintenance_exim_import_price' : 'floatval';
         /** @var \SimpleXMLElement $warehouse_info */
         foreach ($offer->{$cml['warehouse']} as $storage_info) {
 
@@ -305,7 +314,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
                 continue;
             }
 
-            $result[$storage_id] = (int) $storage->{$cml['warehouse_in_stock']};
+            $result[$storage_id] = $func($storage->{$cml['warehouse_in_stock']});
             if ($result[$storage_id] < 0) $result[$storage_id] = 0;
         }
 
@@ -348,12 +357,12 @@ class ExRusEximCommerceml extends RusEximCommerceml
 
         // [csmarket]
         $company_condition = fn_get_company_condition('company_id', true, '', false, true);
-        if ($product_guid) $product_data = $this->db->getRow("SELECT product_id, update_1c, status, tracking, product_code, timestamp FROM ?:products WHERE external_id = ?s $company_condition", $product_guid);
+        if ($product_guid) $product_data = $this->db->getRow("SELECT product_id, update_1c, status, tracking, product_code, timestamp, show_out_of_stock_product FROM ?:products WHERE external_id = ?s $company_condition", $product_guid);
 
         if (empty($product_data)) {
             $_product_data = $this->getProductDataByLinkType($link_type, reset($offers), $cml);
             if (!empty($_product_data))
-            $product_data = $this->db->getRow("SELECT product_id, update_1c, status, tracking, product_code, timestamp FROM ?:products WHERE product_id = ?s $company_condition", $_product_data['product_id']);
+            $product_data = $this->db->getRow("SELECT product_id, update_1c, status, tracking, product_code, timestamp, show_out_of_stock_product FROM ?:products WHERE product_id = ?s $company_condition", $_product_data['product_id']);
         }
 
         $product_id = empty($product_data['product_id']) ? 0 : $product_data['product_id'];
@@ -707,36 +716,40 @@ class ExRusEximCommerceml extends RusEximCommerceml
         $product_update = !empty($product_data['update_1c']) ? $product_data['update_1c'] : 'Y';
         $product_id = (!empty($product_data['product_id'])) ? $product_data['product_id'] : 0;
 
-        $product_status = $xml_product_data->attributes()->{$cml['status']};
-        if (!empty($this->features_commerceml['status']) && isset($xml_product_data->{$cml['properties_values']}->{$cml['property_values']})) {
-            foreach ($xml_product_data->{$cml['properties_values']} -> {$cml['property_values']} as $_feature) {
-                if ($_feature -> {$cml['id']} == $this->features_commerceml['status']['id']) {
-                    $product_status = $this->features_commerceml['status']['variants'][strval($_feature -> {$cml['value']})]['value'];
-                }
-            }
-        }
-
-        if (!empty($product_status) && (string) $product_status == $cml['delete']) {
-            if ($product_id != 0) {
-                fn_delete_product($product_id);
-                $log_message = "\n Deleted product: " . strval($xml_product_data -> {$cml['name']});
-            }
-
-            return $log_message;
-        }
-
-        if (!empty($xml_product_data -> {$cml['status']}) && strval($xml_product_data -> {$cml['status']}) == $cml['delete']) {
-            if ($product_id != 0) {
-                fn_delete_product($product_id);
-                $log_message = "\n Deleted product: " . strval($xml_product_data -> {$cml['name']});
-            }
-
-            return $log_message;
-        }
-
         if ($this->checkUploadProduct($product_id, $product_update)) {
             if (Registry::get('runtime.company_id') == '1815') $this->s_commerceml['exim_1c_import_product_name'] = 'full_name';
             $product = $this->dataProductFile($xml_product_data, $product_id, $guid_product, $categories_commerceml, $import_params);
+
+            if (!empty(strval($xml_product_data->attributes()->{$cml['status']}))) {
+                $product_status = strval($xml_product_data->attributes()->{$cml['status']});
+            } elseif (!empty(strval($xml_product_data->{$cml['status']}))) {
+                $product_status = strval($xml_product_data->{$cml['status']});
+            } elseif (!empty($this->features_commerceml['status']) && isset($xml_product_data->{$cml['properties_values']}->{$cml['property_values']})) {
+                foreach ($xml_product_data->{$cml['properties_values']}->{$cml['property_values']} as $_feature) {
+                    if ($_feature->{$cml['id']} == $this->features_commerceml['status']['id']) {
+                        if (!empty($this->features_commerceml['status']['variants'])) {
+                            $product_status = strval($this->features_commerceml['status']['variants'][strval($_feature -> {$cml['value']})]['value']);
+                        } else {
+                            $product_status = strval($_feature -> {$cml['value']});
+                        }
+                    }
+                }
+            }
+
+            if (!empty($product_status)) {
+                if ($product_status == $cml['delete'] && $product_id != 0) {
+                    fn_delete_product($product_id);
+                    return "\n Deleted product: " . strval($xml_product_data -> {$cml['name']});
+                }
+                if ($product_status == $cml['disabled']) {
+                    $product['status'] = self::PRODUCT_STATUS_DISABLED;
+                } elseif ($product_status == $cml['hidden']) {
+                    $product['status'] = self::PRODUCT_STATUS_HIDDEN;
+                } elseif ($product_status == $cml['active']) {
+                    $product['status'] = self::PRODUCT_STATUS_ACTIVE;
+                }
+                \Tygh::$app['session']['ex_exim_1c']['status_commerceml'][$product_id] = ['ttl' => TIME + SECONDS_IN_HOUR, 'status' => $product['status']];
+            }
 
             // [cs-market] default func adds default category to existing ones
             if (($key = array_search($this->s_commerceml['exim_1c_default_category'], $product['category_ids'])) !== false && count($product['category_ids']) > 1) {
@@ -860,7 +873,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
             }
 
             // Import images
-            if (isset($xml_product_data->{$cml['image']})) {
+            if ($this->company_id != 12 && isset($xml_product_data->{$cml['image']})) {
                 $this->addProductImage($xml_product_data->{$cml['image']}, $product_id, $import_params);
             }
 
@@ -973,6 +986,8 @@ class ExRusEximCommerceml extends RusEximCommerceml
     public function importFileOrders($xml)
     {
         $cml = $this->cml;
+        
+        $func = (Registry::get('addons.maintenance.status') == 'A') ? 'fn_maintenance_exim_import_price' : 'floatval';
         if (isset($xml->{$cml['document']})) {
             $orders_data = $xml->{$cml['document']};
 
@@ -1009,9 +1024,10 @@ class ExRusEximCommerceml extends RusEximCommerceml
                 // }
                 $order_id = $order_info['order_id'];
                 foreach ($order_data->{$cml['products']}->{$cml['product']} as $xml_product) {
-                    $product_data = $this->getProductDataByLinkType($link_type, $xml_product, $cml);
-                    $xml_products[$product_data['product_id']] = $xml_products[$product_data['product_id']] ?? 0;
-                    $xml_products[$product_data['product_id']] += intval($xml_product->{$cml['amount']});
+                    if ($product_data = $this->getProductDataByLinkType($link_type, $xml_product, $cml)) {
+                        $xml_products[$product_data['product_id']] = $xml_products[$product_data['product_id']] ?? 0;
+                        $xml_products[$product_data['product_id']] += $func(strval($xml_product->{$cml['amount']}));
+                    }
                 }
                 $order_products = array_filter(fn_array_column($order_info['products'], 'amount', 'product_id'));
 
@@ -1025,6 +1041,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
                     fn_store_shipping_rates($order_id, $cart, $customer_auth);
                     $cart['order_id'] = $order_id;
                     //$cart['order_status'] = $statuses[strval($data_field->{$cml['value']})]['status'];
+                    $extra = array_column($cart['products'], 'extra', 'product_id');
                     $cart['products'] = array();
 
                     foreach ($order_data->{$cml['products']}->{$cml['product']} as $xml_product) {
@@ -1033,8 +1050,10 @@ class ExRusEximCommerceml extends RusEximCommerceml
                         $_item = array (
                             $product_data['product_id'] => array (
                                 'amount' => strval($xml_product->{$cml['amount']}),
+                                'original_amount' => strval($xml_product->{$cml['amount']}),
                                 'price' => strval($xml_product->{$cml['price_per_item']}),
                                 'stored_price' => 'Y',
+                                'extra' => isset($extra[$product_data['product_id']]) ? $extra[$product_data['product_id']] : [],
                             ),
                         );
                         fn_add_product_to_cart($_item, $cart, $customer_auth);
@@ -1115,6 +1134,8 @@ class ExRusEximCommerceml extends RusEximCommerceml
 
     public function addProductPrice($product_id, $prices)
     {
+        if (!empty($product_id) && !isset($prices['base_price'])) $prices['base_price'] = db_get_field('SELECT price FROM ?:product_prices WHERE product_id = ?i AND usergroup_id = ?i', $product_id, 0);
+
         // Prices updating
         $fake_product_data = array(
             'price' => isset($prices['base_price']) ? $prices['base_price'] : 0,
@@ -1281,6 +1302,8 @@ class ExRusEximCommerceml extends RusEximCommerceml
                     $cml['rate_discounts'] => round((1 - $product['price'] / $product['base_price']) * 100),
                     $cml['in_total'] => 'true'
                 );
+
+                fn_set_hook('exim_1c_export_ordered_product_with_discount', $product, $data_product, $cml);
             }
 
             if (!empty($data_taxes['products'][$product['item_id']])) {
@@ -1289,7 +1312,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
                 foreach ($data_taxes['products'][$product['item_id']] as $product_tax) {
                     $data_product[$cml['taxes_rates']][][$cml['tax_rate']] = array(
                         $cml['name'] => $product_tax['name'],
-                        $cml['rate_t'] => $product_tax['value']
+                        $cml['rate_t'] => (float) $product_tax['value']
                     );
 
                     if ($product_tax['tax_in_total'] == 'false') {
@@ -1407,6 +1430,17 @@ class ExRusEximCommerceml extends RusEximCommerceml
                     $features_import['status']['variants'] = $_variants;
                 } elseif ($feature_name == '*Название для сайта#') {
                     $features_import['product']['id'] = strval($_feature -> {$cml['id']});
+                }
+
+                if (in_array($feature_name, $cml['qty_step'])) {
+                    $features_import['qty_step']['id'] = strval($_feature -> {$cml['id']});
+                    $features_import['qty_step']['name'] = 'qty_step';
+                } elseif (in_array($feature_name, $cml['min_qty'])) {
+                    $features_import['min_qty']['id'] = strval($_feature -> {$cml['id']});
+                    $features_import['min_qty']['name'] = 'min_qty';
+                } elseif (in_array($feature_name, $cml['max_qty'])) {
+                    $features_import['max_qty']['id'] = strval($_feature -> {$cml['id']});
+                    $features_import['max_qty']['name'] = 'max_qty';
                 }
 
                 fn_set_hook('exim_1c_import_features_definition', $features_import, $feature_name, $_feature, $cml);
@@ -1593,13 +1627,13 @@ class ExRusEximCommerceml extends RusEximCommerceml
 
                 fn_set_hook('exim_1c_import_value_fields', $product, $value_field, $_name_field, $_v_field, $cml);
 
-                // TODO move string to add-on settings
-                if (in_array($_name_field, array('КвантЗаказа'))) {
-                    $product['qty_step'] = (float) $_v_field;
-                }
-                if ($_name_field == $cml['avail_till']) $product['avail_till'] = fn_parse_date($_v_field, true);
+                if (in_array($_name_field, $cml['qty_step'])) $product['qty_step'] = (float) $_v_field;
+                if (in_array($_name_field, $cml['min_qty'])) $product['min_qty'] = (float) $_v_field;
+                if (in_array($_name_field, $cml['max_qty'])) $product['max_qty'] = (float) $_v_field;
 
-                if ($_name_field == $cml['tracking']) {
+                if (in_array($_name_field, $cml['avail_till'])) $product['avail_till'] = fn_parse_date($_v_field, true);
+
+                if (in_array($_name_field, $cml['tracking'])) {
                     if ($_v_field == $cml['yes']) {
                         $product['tracking'] = ProductTracking::TRACK_WITH_OPTIONS;
                     } else {
@@ -1692,9 +1726,10 @@ class ExRusEximCommerceml extends RusEximCommerceml
             return self::PRODUCT_STATUS_ACTIVE;
         }
 
-        $product_status = $this->getProductStatusByAmount($amount);
+        if (isset(\Tygh::$app['session']['ex_exim_1c']['status_commerceml'][$product_id])) return self::PRODUCT_STATUS_ACTIVE;
 
-        if ($product_data['tracking'] != ProductTracking::DO_NOT_TRACK) {
+        $product_status = $this->getProductStatusByAmount($amount);
+        if ($product_data['tracking'] != ProductTracking::DO_NOT_TRACK && $product_data['show_out_of_stock_product'] != YesNo::YES) {
             $this->db->query(
                 'UPDATE ?:products SET status = ?s WHERE update_1c = ?s AND product_id = ?i',
                 $product_status,
@@ -1708,6 +1743,7 @@ class ExRusEximCommerceml extends RusEximCommerceml
 
     public function dataProductFeatures($data_product, $product, $import_params)
     {
+        $func = (Registry::get('addons.maintenance.status') == 'A') ? 'fn_maintenance_exim_import_price' : 'floatval';
         $property_for_promo_text = trim($this->s_commerceml['exim_1c_property_product']);
         $cml = $this->cml;
         $features_commerceml = $this->features_commerceml;
@@ -1718,6 +1754,16 @@ class ExRusEximCommerceml extends RusEximCommerceml
                 $feature_id = strval($_feature -> {$cml['id']});
 
                 fn_set_hook('exim_1c_import_features_values', $product, $_feature, $features_commerceml, $cml);
+
+                if (!empty($features_commerceml['qty_step']['id']) && $features_commerceml['qty_step']['id'] == $_feature -> {$cml['id']}) {
+                    $product['qty_step'] = $func(strval($_feature -> {$cml['value']}));
+                }
+                if (!empty($features_commerceml['min_qty']['id']) && $features_commerceml['min_qty']['id'] == $_feature -> {$cml['id']}) {
+                    $product['min_qty'] = $func(strval($_feature -> {$cml['value']}));
+                }
+                if (!empty($features_commerceml['max_qty']['id']) && $features_commerceml['max_qty']['id'] == $_feature -> {$cml['id']}) {
+                    $product['max_qty'] = $func(strval($_feature -> {$cml['value']}));
+                }
 
                 if (!isset($features_commerceml[$feature_id])) {
                     continue;

@@ -12,8 +12,23 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 use Tygh\ExtendedAPI;
+use Tygh\Enum\SiteArea;
 
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
+
+function fn_extended_api_user_init($auth, $user_info, $first_init) {
+    if (SiteArea::isAdmin(AREA)) return;
+
+    if ($auth['user_id']) {
+        if (empty(Tygh::$app['session']['cart']['user_data'])) {
+            $profile_id = fn_get_session_data('last_order_profile_id');
+            Tygh::$app['session']['cart']['user_data'] = fn_get_user_info($auth['user_id'], true, $profile_id);
+        }
+        if (defined('API')) {
+            fn_extract_cart_content(Tygh::$app['session']['cart'], $auth['user_id'], 'C', 'R');
+        }
+    }
+}
 
 function fn_init_extended_api() {
     Tygh::$app['api'] = new ExtendedAPI();

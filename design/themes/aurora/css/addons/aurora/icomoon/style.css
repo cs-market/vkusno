@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'aurora-glyphs';
   src:
-    url('fonts/aurora-glyphs.ttf?byxbo5') format('truetype'),
-    url('fonts/aurora-glyphs.woff?byxbo5') format('woff'),
-    url('fonts/aurora-glyphs.svg?byxbo5#aurora-glyphs') format('svg');
+    url('fonts/aurora-glyphs.ttf?3hqt0j') format('truetype'),
+    url('fonts/aurora-glyphs.woff?3hqt0j') format('woff'),
+    url('fonts/aurora-glyphs.svg?3hqt0j#aurora-glyphs') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -24,11 +24,26 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.ty-icon-aurora-plus:before {
+.ty-icon-aurora-radio_on:before {
+  content: "\e918";
+}
+.ty-icon-aurora-radio_off:before {
+  content: "\e919";
+}
+.ty-icon-aurora-house:before {
   content: "\e900";
 }
-.ty-icon-aurora-vk:before {
+.ty-icon-aurora-expand:before {
+  content: "\e917";
+}
+.ty-icon-aurora-filter:before {
+  content: "\e915";
+}
+.ty-icon-aurora-plus:before {
   content: "\e901";
+}
+.ty-icon-aurora-vk:before {
+  content: "\e902";
 }
 .ty-icon-aurora-heart-full:before {
   content: "\e912";
@@ -49,41 +64,41 @@
   content: "\e909";
 }
 .ty-icon-aurora-account:before {
-  content: "\e902";
-}
-.ty-icon-aurora-arrow-down:before {
   content: "\e903";
 }
-.ty-icon-aurora-arrow-left:before {
+.ty-icon-aurora-arrow-down:before {
   content: "\e904";
 }
-.ty-icon-aurora-arrow-right:before {
+.ty-icon-aurora-arrow-left:before {
   content: "\e905";
 }
-.ty-icon-aurora-arrow-up:before {
+.ty-icon-aurora-arrow-right:before {
   content: "\e906";
 }
-.ty-icon-aurora-cart:before {
+.ty-icon-aurora-arrow-up:before {
   content: "\e907";
 }
-.ty-icon-aurora-checkbox-blank:before {
+.ty-icon-aurora-cart:before {
   content: "\e908";
 }
-.ty-icon-aurora-checkbox-checked:before {
+.ty-icon-aurora-checkbox-blank:before {
   content: "\e90a";
 }
-.ty-icon-aurora-cross:before {
+.ty-icon-aurora-checkbox-checked:before {
   content: "\e90b";
 }
-.ty-icon-aurora-home:before {
+.ty-icon-aurora-cross:before {
   content: "\e90c";
 }
-.ty-icon-aurora-menu:before {
+.ty-icon-aurora-home:before {
   content: "\e90d";
 }
-.ty-icon-aurora-star-empty:before {
+.ty-icon-aurora-menu:before {
   content: "\e90e";
 }
-.ty-icon-aurora-star-full:before {
+.ty-icon-aurora-star-empty:before {
   content: "\e910";
+}
+.ty-icon-aurora-star-full:before {
+  content: "\e916";
 }

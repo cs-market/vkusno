@@ -16,7 +16,7 @@ use Tygh\Enum\SiteArea;
 use Tygh\Enum\YesNo;
 use Tygh\Enum\ProductTracking;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_storages_install() {
     if (Registry::get('addons.user_price.status') == 'A') {
@@ -106,8 +106,14 @@ function fn_get_storages($params = [], $items_per_page = 0) {
     $storages = db_get_hash_array("SELECT ?:storages.* FROM ?:storages $join WHERE 1 ?p ?p", 'storage_id', $condition, $limit);
 
     if (isset($params['storage_id']) || (isset($params['get_usergroups']) && $params['get_usergroups'] === 'true')) {
+        $storages_usergroups = db_get_array('SELECT storage_id, usergroup_id FROM ?:storage_usergroups WHERE storage_id IN (?a)', array_keys($storages));
+
         foreach ($storages as &$storage) {
-            $storage['usergroup_ids'] = db_get_fields('SELECT usergroup_id FROM ?:storage_usergroups WHERE storage_id = ?i', $storage['storage_id']);
+            $storage_usergroups = array_filter($storages_usergroups, function($v) use ($storage) {
+                return ($v['storage_id'] == $storage['storage_id']);
+            });
+
+            $storage['usergroup_ids'] = array_column($storage_usergroups, 'usergroup_id');
         }
     }
 
@@ -178,29 +184,19 @@ function fn_delete_storages($storage_ids) {
     return $res;
 }
 
-function fn_storages_get_usergroups_pre(&$params, $lang_code) {
-    if (fn_allowed_for('MULTIVENDOR')) {
-        if (isset($params['company_id']) && !empty($params['company_id'])) {
-            $usergroup_ids = db_get_field("SELECT usergroup_ids FROM ?:vendor_plans LEFT JOIN ?:companies ON ?:companies.plan_id = ?:vendor_plans.plan_id WHERE company_id = ?i", $params['company_id']);
-            if (!empty($usergroup_ids)) $params['usergroup_id'] = explode(',',$usergroup_ids);
-        }
-    }
-}
-
 function fn_storages_update_product_post($product_data, $product_id, $lang_code, $create) {
     if (isset($product_data['storages'])) {
         db_query('DELETE FROM ?:storages_products WHERE product_id = ?i', $product_id);
-        $update = [];
-        foreach ($product_data['storages'] as $storage_id => &$storage_data) {
-            if (isset($storage_data['storage_id'])) $storage_id = $storage_data['storage_id'];
-            if (!empty(array_filter($storage_data))) {
-                $update[$storage_id] = $storage_data;
-                $update[$storage_id]['storage_id'] = $storage_id;
-                $update[$storage_id]['product_id'] = $product_id;
-            }
-        }
+        $product_data['storages'] = array_filter($product_data['storages'], function($v) { 
+            return (array_filter($v));
+        });
 
-        if (!empty($update)) db_query('INSERT INTO ?:storages_products ?m', $update);
+        array_walk($product_data['storages'], function(&$storage, $id) use ($product_id) {
+            $storage['storage_id'] = $storage['storage_id'] ?? $id;
+            $storage['product_id'] = $product_id;
+        });
+
+        if (!empty($product_data['storages'])) db_query('INSERT INTO ?:storages_products ?m', $product_data['storages']);
     }
 }
 
@@ -271,7 +267,7 @@ function fn_storages_load_products_extra_data(&$extra_fields, $products, $produc
             'condition' => db_quote(' AND ?:storages_products.storage_id = ?i', $storage['storage_id'])
         ];
 
-        if (!empty($storage['usergroup_ids'])) {
+        if (isset($storage['usergroup_ids']) && !empty(array_filter($storage['usergroup_ids']))) {
             $params['auth_usergroup_ids'] = array_intersect($params['auth_usergroup_ids'], $storage['usergroup_ids']);
         }
     }
@@ -382,7 +378,7 @@ function fn_storages_user_logout_before_save_cart($auth) {
 function fn_storages_pre_add_to_cart(&$product_data, $cart, $auth, $update) {
     if ($update) {
         foreach ($product_data as $key => &$data) {
-            $data['extra']['storage_id'] = $cart['products'][$key]['extra']['storage_id'];
+            $data['extra']['storage_id'] = isset($cart['products'][$key]['extra']['storage_id']) ? $cart['products'][$key]['extra']['storage_id'] : Registry::ifGet('runtime.current_storage.storage_id', false);
         }
         unset($data);
     } elseif ($storage_id = Registry::ifGet('runtime.current_storage.storage_id', false)) {
@@ -428,11 +424,13 @@ function fn_storages_get_cart_product_data($product_id, &$_pdata, $product, $aut
         $storage = $storages[$product['extra']['storage_id']];
         if (!empty($storage['usergroup_ids'])) {
             $usergroup_ids = array_intersect($usergroup_ids, $storage['usergroup_ids']);
-        }
 
-        $usergroup_ids = array_filter($usergroup_ids);
-        if ($usergroup_ids) {
-            $_pdata['price'] = db_get_field("SELECT IF(prices.percentage_discount = 0, prices.price, prices.price - (prices.price * prices.percentage_discount)/100) as price FROM ?:product_prices prices WHERE product_id = ?i AND lower_limit = ?i AND usergroup_id IN (?a)", $product_id, 1, $usergroup_ids);
+            $usergroup_ids = array_filter($usergroup_ids);
+            if ($usergroup_ids) {
+                $_pdata['price'] = db_get_field("SELECT min(IF(prices.percentage_discount = 0, prices.price, prices.price - (prices.price * prices.percentage_discount)/100)) as price FROM ?:product_prices prices WHERE product_id = ?i AND lower_limit = ?i AND usergroup_id IN (?a)", $product_id, 1, $usergroup_ids);
+            }
+
+            fn_set_hook('storages_get_cart_product_data', $product_id, $_pdata, $product, $auth, $cart, $hash);
         }
 
         // исключить товар без цены
@@ -584,7 +582,7 @@ function fn_storages_get_orders($params, $fields, $sortings, &$condition, $join,
 function fn_storages_get_order_info(&$order, $additional_data) {
     if (!empty($order['storage_id'])) {
         list($storages,) = fn_get_storages(['storage_id' => $order['storage_id']]);
-        $order['storage'] = reset($storages);
+        if (!empty($storages)) $order['storage'] = reset($storages);
     }
 }
 
@@ -618,7 +616,7 @@ function fn_storages_get_user_price($params, $join, &$condition) {
         $storage_id = $storage['storage_id'];
     }
     if (!empty($storage_id)) {
-        $condition .= db_quote(' AND p.storage_id = ?i ', $storage_id);
+        $condition .= db_quote(' AND (p.storage_id = ?i OR p.storage_id = 0)', $storage_id);
     }
 }
 

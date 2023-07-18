@@ -6,7 +6,7 @@ use Tygh\Registry;
 use Tygh\Enum\YesNo;
 use Tygh\Enum\SiteArea;
 
-if ( !defined('AREA') ) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_calendar_delivery_install()
 {
@@ -62,7 +62,8 @@ function fn_calendar_delivery_uninstall()
     }
 }
 
-function fn_calendar_delivery_get_orders($params, $fields, $sortings, &$condition, $join, $group) {
+function fn_calendar_delivery_get_orders($params, &$fields, $sortings, &$condition, $join, $group) {
+    $fields[] = '?:orders.delivery_date';
     if (isset($params['delivery_date']) && !empty($params['delivery_date'])) {
         $condition .= db_quote(' AND (?:orders.delivery_date = ?i OR ?:orders.delivery_date = 0)', $params['delivery_date']);
     }
@@ -140,7 +141,7 @@ function fn_calendar_get_nearest_delivery_day($shipping_params = [], $get_ts = f
         $monday = new \DateTime('next tuesday');
         $diff = $now->diff($monday)->d;
 
-        $nearest_delivery = ($diff > $nearest_delivery) ? $diff : $nearest_delivery;
+        $nearest_delivery = max($diff, $nearest_delivery);
     }
 
     if (!empty((int) $shipping_params['weekdays_availability'])) {
@@ -583,6 +584,7 @@ function fn_calendar_delivery_allow_place_order_post(&$cart, $auth, $parent_orde
                 } else {
                     $res = false;
                 }
+                if (!empty($group['shippings'][$chosen_shipping_id]['service_params']['holidays']) && in_array($group['delivery_date'], $group['shippings'][$chosen_shipping_id]['service_params']['holidays'])) $res = false;
             }
             if (empty($cart['delivery_period'])) unset($cart['delivery_period']);
 

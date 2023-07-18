@@ -4,8 +4,9 @@ use Tygh\Registry;
 use Tygh\Enum\UserTypes;
 use Tygh\Enum\SiteArea;
 use Tygh\Enum\UserRoles;
+use Tygh\Enum\YesNo;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_get_managers($params = []) {
     if (!is_array($params)) $params = [];
@@ -113,7 +114,7 @@ function fn_managers_get_order_info(&$order, $additional_data) {
 
 function fn_managers_get_users(&$params, &$fields, &$sortings, &$condition, &$join, $auth) {
     if (UserRoles::is_management_user()) {
-        if ($params['user_type'] == 'C') $params['manager_users'] = $auth['user_id'];
+        if (isset($params['user_type']) && $params['user_type'] == UserTypes::CUSTOMER) $params['manager_users'] = $auth['user_id'];
     }
 
     if (!empty($params['manager_users'])) {
@@ -196,7 +197,7 @@ function fn_managers_vendor_communication_add_thread_message_post( $thread_full_
 function fn_managers_place_order($order_id, $action, $order_status, $cart, $auth) {
     $order_info = fn_get_order_info($order_id);
     $field = (isset($cart['order_id']) && !empty($cart['order_id'])) ? 'notify_manager_order_update' : 'notify_manager_order_create';
-    if (db_get_field("SELECT $field FROM ?:companies WHERE company_id = ?i", $order_info['company_id']) == 'Y') {
+    if (YesNo::toBool(db_get_field("SELECT $field FROM ?:companies WHERE company_id = ?i", $order_info['company_id']))) {
         $mailer = Tygh::$app['mailer'];
         list($shipments) = fn_get_shipments_info(array('order_id' => $order_info['order_id'], 'advanced_info' => true));
         $use_shipments = !fn_one_full_shipped($shipments);
@@ -243,7 +244,7 @@ function fn_managers_generate_sales_report(&$params, &$elements_join, &$elements
 }
 
 function fn_managers_generate_sales_report_post($params, &$row, $user) {
-    if ($params['show_manager'] == 'Y') {
+    if (YesNo::toBool($params['show_manager'])) {
         $roles = UserRoles::getList(UserTypes::ADMIN);
         unset($roles[UserRoles::CUSTOMER]);
         array_walk($user['managers'], function(&$v) {
@@ -262,8 +263,15 @@ function fn_managers_delete_user($user_id, $user_data) {
 }
 
 function fn_managers_get_tickets_params(&$params, $condition, $join) {
-    if (ACCOUNT_TYPE == 'vendor' && !UserRoles::is_management_user()) {
-        unset($params['user_id']);
+    if (ACCOUNT_TYPE == 'vendor') {
+        if (!UserRoles::is_management_user()) {
+            unset($params['user_id']);
+        } else {
+            list($manager_users) = fn_get_users(['manager_users' => $params['user_id']], Tygh::$app['session']['auth']);
+            if (!empty($manager_users)) {
+                $params['user_id'] = array_column($manager_users, 'user_id');
+            }
+        }
     }
 }
 
@@ -276,10 +284,18 @@ function fn_managers_send_form(&$page_data, $form_values, $result, $from, $sende
     }
 }
 
-function fn_managers_update_ticket_pre(&$data) {
-    $sender = reset($data['users']);
-    $managers = fn_get_managers(['user_managers' => $sender]);
-    $data['users'] = array_unique(array_merge($data['users'], array_column($managers, 'user_id')));
+function fn_managers_helpdesk_get_ticket_users_post(&$users, $params, $fields, $join, $condition) {
+    if (!empty($users)) {
+        $ticket_customer = array_filter($users, function($u) {
+            return $u['user_type'] == 'C';
+        });
+        if (!empty($ticket_customer)) {
+            if ($managers = fn_get_managers(['user_managers' => key($ticket_customer)])) {
+                $managers = fn_array_value_to_key($managers, 'user_id');
+                $users = fn_array_merge($users, $managers);
+            }
+        }
+    }
 }
 
 function fn_managers_sales_reports_dynamic_conditions($type, $condition, $users) {

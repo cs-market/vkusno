@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 fn_register_hooks(
     'pre_add_to_cart',
@@ -13,4 +13,7 @@ fn_register_hooks(
     'check_permission_manage_profiles',
     ['check_rights_delete_user', 1],
     'get_users',
+    'mailer_create_message_before',
+    'get_payments_pre',
+    'shippings_get_shippings_list_conditions',
 );

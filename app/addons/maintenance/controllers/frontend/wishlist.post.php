@@ -11,6 +11,8 @@
 *  "license agreement.txt" FILE PROVIDED WITH THIS DISTRIBUTION PACKAGE.  *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
+defined('BOOTSTRAP') or die('Access denied');
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($mode == 'add') {
         foreach (Tygh::$app['session']['notifications'] as $k => $v) {

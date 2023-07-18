@@ -7,13 +7,14 @@
             {hook name="checkout:dropdown_title"}
                 {if $smarty.session.cart.amount}
                     <i class="ty-minicart__icon ty-icon-cart filled"></i>
-                    <span class="ty-minicart-title ty-hand">{$smarty.session.cart.amount}&nbsp;{__("items")} {__("for")}&nbsp;{include file="common/price.tpl" value=$smarty.session.cart.display_subtotal}</span>
+                    <span class="ty-minicart-title ty-hand"><span>{$smarty.session.cart.amount}&nbsp;{__("items")} {__("for")}&nbsp;</span>{include file="common/price.tpl" value=$smarty.session.cart.display_subtotal}</span>
                     <i class="ty-icon-down-micro"></i>
                 {else}
                     <i class="ty-minicart__icon ty-icon-cart empty"></i>
-                    <span class="ty-minicart-title empty-cart ty-hand">{__("cart_is_empty")}</span>
+                    <span class="ty-minicart-title empty-cart ty-hand"><span>{__("cart_is_empty")}</span></span>
                     <i class="ty-icon-down-micro"></i>
                 {/if}
+                <span class="ty-minicart-title__counter">{$smarty.session.cart.display_subtotal}</span>
             {/hook}
         </a>
         </div>
@@ -38,7 +39,7 @@
                                                     <div class="ty-cart-items__list-item-desc">
                                                         <a href="{"products.view?product_id=`$product.product_id`"|fn_url}">{$product.product|default:fn_get_product_name($product.product_id) nofilter}</a>
                                                     <p>
-                                                        <span>{$product.amount}</span><span>&nbsp;x&nbsp;</span>{include file="common/price.tpl" value=$product.display_price span_id="price_`$key`_`$dropdown_id`" class="none"}
+                                                        <span>{$product.amount}</span>&nbsp;{if $runtime.shop_id == 2}{__('items')}{else}<span>x&nbsp;</span>{include file="common/price.tpl" value=$product.display_price span_id="price_`$key`_`$dropdown_id`" class="none"}{/if}
                                                     </p>
                                                     </div>
                                                     {if $block.properties.display_delete_icons == "Y"}

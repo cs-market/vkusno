@@ -5,8 +5,9 @@ use Tygh\Storage;
 use Tygh\Enum\SiteArea;
 use Tygh\Enum\UserTypes;
 use Tygh\Enum\YesNo;
+use Tygh\Enum\NotificationSeverity;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_get_mailboxes($params = array()) {
     $condition = '';
@@ -59,7 +60,7 @@ function fn_delete_mailbox($mailbox_id = 0, $delete_tickets = true) {
 function fn_get_message_templates($params = array()) {
     $params['user_id'] = !empty($params['user_id']) ? $params['user_id'] : Tygh::$app['session']['auth']['user_id'];
 
-    $condition = db_quote(" (user_id = ?i or is_global = 'Y')", $params['user_id']);
+    $condition = db_quote(" (user_id = ?i or is_global = ?s)", $params['user_id'], YesNo::YES);
 
     if (!empty($params['template_id'])) {
         $condition .= db_quote(' AND template_id = ?i', $params['template_id']);
@@ -93,7 +94,7 @@ function fn_update_template($template, $template_id = 0) {
             unset($template['template_id']);
             $template_id = db_query('UPDATE ?:helpdesk_templates SET ?u WHERE template_id = ?i', $template, $template_id);
         } else {
-            fn_set_notification('W', __('warning'), __('helpdesk.template_owned_by') . ' ' . fn_get_user_name($current_data['user_id']));
+            fn_set_notification(NotificationSeverity::WARNING, __('warning'), __('helpdesk.template_owned_by') . ' ' . fn_get_user_name($current_data['user_id']));
         }
     } else {
 
@@ -109,13 +110,13 @@ function fn_delete_message_template($template_id = 0) {
     if ($current_data['user_id'] == Tygh::$app['session']['auth']['user_id']) {
         $res = db_query("DELETE FROM ?:helpdesk_templates WHERE template_id = ?i", $template_id);
     } else {
-        fn_set_notification('W', __('warning'), __('helpdesk.template_owned_by') . ' ' . fn_get_user_name($current_data['user_id']));
+        fn_set_notification(NotificationSeverity::WARNING, __('warning'), __('helpdesk.template_owned_by') . ' ' . fn_get_user_name($current_data['user_id']));
     }
     return $res;
 }
 
 function fn_get_tickets($params = array(), $items_per_page = 10) {
-    $condition = "1";
+    $condition[1] = "1";
     $join = [];
     $order = "";
     $group = "GROUP BY t.ticket_id";
@@ -131,14 +132,13 @@ function fn_get_tickets($params = array(), $items_per_page = 10) {
     if (SiteArea::isAdmin(AREA) && !fn_is_restricted_admin($user_info) && UserTypes::isAdmin($user_info['user_type'])) {
         unset($params['user_id']);
     }
-
     fn_set_hook('get_tickets_params', $params, $condition, $join);
 
     if (!empty($params['ticket_id'])) {
         if (!is_array($params['ticket_id'])) {
             $params['ticket_id'] = explode(',', $params['ticket_id'] );
         }
-        $condition .= db_quote(" AND t.ticket_id in (?a)", $params['ticket_id']);
+        $condition['ticket_id'] = db_quote(" AND t.ticket_id in (?a)", $params['ticket_id']);
         unset($params['page']);
     }
 
@@ -146,7 +146,7 @@ function fn_get_tickets($params = array(), $items_per_page = 10) {
     $join['helpdesk_mailboxes'] = " LEFT JOIN ?:helpdesk_mailboxes AS mb ON t.mailbox_id = mb.mailbox_id";
 
     if (Registry::get('runtime.company_id')) {
-        $condition .= fn_get_company_condition('mb.company_id');
+        $condition['company_condition'] = fn_get_company_condition('mb.company_id');
     }
 
     if (!isset($params['ticket_id'])) {
@@ -154,18 +154,24 @@ function fn_get_tickets($params = array(), $items_per_page = 10) {
         $join['helpdesk_messages'] = db_quote(" LEFT JOIN ?:helpdesk_messages AS m on t.ticket_id = m.ticket_id");
         $order = ' ORDER BY updated DESC ';
     }
-
     if (!empty($params['status'])) {
-        $days_threshold = Registry::get('addons.helpdesk.days_threshold') ? Registry::get('addons.helpdesk.days_threshold') : 0;
-        $condition .= db_quote(" AND ( m.status = ?s OR (m.status = 'W' AND m.timestamp < ?i))", $params['status'], (TIME - SECONDS_IN_DAY * $days_threshold));
+        $extra = '';
+        if ($params['status'] == 'N') {
+            $extra = db_quote(' OR (m.status = ?s AND m.timestamp < ?i)', 'W', (TIME - SECONDS_IN_DAY * Registry::ifGet('addons.helpdesk.days_threshold', 0)));
+        }
+        $condition['status'] = db_quote(" AND ( m.status = ?s ?p)", $params['status'], $extra);
     }
 
     if (!empty($params['user_id'])) {
         $join['helpdesk_ticket_users'] = " LEFT JOIN ?:helpdesk_ticket_users AS tu ON tu.ticket_id = t.ticket_id";
-        $condition .= db_quote(" AND tu.user_id = ?i", $params['user_id']);
-    } elseif (AREA == 'C') {
+        if (is_array($params['user_id'])) {
+            $condition['ticket_user'] = db_quote(" AND tu.user_id IN (?a)", $params['user_id']);
+        } else {
+            $condition['ticket_user'] = db_quote(" AND tu.user_id = ?i", $params['user_id']);
+        }
+    } elseif (SiteArea::isStorefront(AREA)) {
         if (!empty(Tygh::$app['session']['auth']['ticket_ids'])) {
-            $condition .= db_quote(" AND t.ticket_id IN (?a)", Tygh::$app['session']['auth']['ticket_ids']);
+            $condition['auth_ticket_id'] = db_quote(" AND t.ticket_id IN (?a)", Tygh::$app['session']['auth']['ticket_ids']);
         } else {
             //SECURITY REASON
             return array([], $params);
@@ -173,15 +179,17 @@ function fn_get_tickets($params = array(), $items_per_page = 10) {
     }
 
     if (isset($params['mailbox_id'])) {
-        $condition .= db_quote(" AND t.mailbox_id = ?i", $params['mailbox_id']);
+        $condition['mailbox_id'] = db_quote(" AND t.mailbox_id = ?i", $params['mailbox_id']);
     }
 
+    fn_set_hook('get_tickets_pre', $params, $condition, $join);
+
     if (!empty($params['items_per_page'])) {
-        $params['total_items'] = db_get_field("SELECT count(DISTINCT(t.ticket_id)) FROM ?:helpdesk_tickets AS t " . implode(' ', $join) . " WHERE $condition");
+        $params['total_items'] = db_get_field("SELECT count(DISTINCT(t.ticket_id)) FROM ?:helpdesk_tickets AS t " . implode(' ', $join) . " WHERE ?p", implode(' ', $condition));
         $limit = db_paginate($params['page'], $params['items_per_page']);
     }
 
-    $tickets = db_get_hash_array("SELECT $fields FROM ?:helpdesk_tickets AS t" . implode(' ', $join) . " WHERE $condition $group $order $limit", 'ticket_id');
+    $tickets = db_get_hash_array("SELECT $fields FROM ?:helpdesk_tickets AS t" . implode(' ', $join) . " WHERE ?p $group $order $limit", 'ticket_id', implode(' ', $condition));
 
     if (!isset($params['ticket_id']) && !empty($tickets)) {
         $ticket_count_new = db_get_hash_array("SELECT COUNT(m.message_id) as count_new, m.ticket_id FROM ?:helpdesk_messages AS m WHERE m.status = ?s AND m.ticket_id in (?a) GROUP BY m.ticket_id", 'ticket_id', 'N', array_keys($tickets));
@@ -263,7 +271,10 @@ function fn_get_ticket($params, $items_per_page = 10) {
 
             if (SiteArea::isStorefront(AREA)) {
                 $messages = array_filter($ticket['messages'], function($v) {return $v['viewed'] == 'N';});
-                if (!empty($messages)) db_query('UPDATE ?:helpdesk_messages SET `viewed` = ?s WHERE message_id IN (?a)', 'Y', array_keys($messages));
+                if (!empty($messages)) db_query('UPDATE ?:helpdesk_messages SET `viewed` = ?s WHERE message_id IN (?a)', YesNo::YES, array_keys($messages));
+            } else {
+                $messages = array_filter($ticket['messages'], function($v) {return $v['status'] == 'N';});
+                if (!empty($messages)) db_query('UPDATE ?:helpdesk_messages SET `status` = ?s WHERE message_id IN (?a)', 'O', array_keys($messages));
             }
         }
     }
@@ -326,7 +337,7 @@ function fn_get_messages($params, $items_per_page = 10) {
             $message['status'] = 'C';
         }
         
-        if (AREA == 'A' && $params['hide_blockquote']) {
+        if (SiteArea::isAdmin(AREA) && $params['hide_blockquote']) {
             $onclick = "\$(this).removeClass('hidden-text');";
             $message['message'] = preg_replace("'<blockquote'","<blockquote class='hidden-text' onclick=" . $onclick . "", $message['message'], 1, $count);
         }
@@ -344,7 +355,7 @@ function fn_get_messages($params, $items_per_page = 10) {
 }
 
 function fn_get_ticket_users($params) {
-    $users = array();
+    $condition = $users = [];
     if (isset($params['ticket_id']) && !empty($params['ticket_id'])) {    
         $join = 'LEFT JOIN ?:helpdesk_ticket_users AS tu ON u.user_id = tu.user_id';
 
@@ -352,17 +363,34 @@ function fn_get_ticket_users($params) {
             $params['ticket_id'] = [$params['ticket_id']];
         }
 
-        $condition = db_quote('tu.ticket_id IN (?a)', $params['ticket_id']);
-        $fields = "u.email, u.user_id, u.firstname, u.lastname, CONCAT(u.firstname, ' ', u.lastname) AS username";
+        $condition['ticket'] = db_quote('tu.ticket_id IN (?a)', $params['ticket_id']);
+        $fields = [
+            'email' => 'u.email',
+            'user_id' => 'u.user_id',
+            'firstname' => 'u.firstname',
+            'lastname' => 'u.lastname',
+            'user_type' => 'u.user_type',
+        ];
+
+        if (!empty($params['notification'])) {
+            $condition['notification'] = db_quote(' AND u.helpdesk_notification = ?s', $params['notification']);
+        }
+
+        fn_set_hook('helpdesk_get_ticket_users_pre', $params, $fields, $join, $condition);
+
+        $users = db_get_hash_array("SELECT " . implode(', ', $fields) . " FROM ?:users AS u $join WHERE ?p", 'user_id', implode(' ', $condition));
+
+        fn_set_hook('helpdesk_get_ticket_users_post', $users, $params, $fields, $join, $condition);
 
         if (!empty($params['user_type'])) {
-            $condition .= db_quote(" AND u.user_type in (?a)", $params['user_type']);
+            $user_type = $params['user_type'];
+            if (!is_array($params['user_type'])) {
+                $user_type = explode(',', $params['user_type']);
+            }
+            $users = array_filter($users, function($u) use ($user_type) {
+                return in_array($u['user_type'], $user_type);
+            });
         }
-        if (!empty($params['notification'])) {
-            $condition .= db_quote(' AND u.helpdesk_notification = ?s', $params['notification']);
-        }
-
-        $users = db_get_hash_array("SELECT $fields FROM ?:users AS u $join WHERE $condition", 'user_id');
     }
 
     return $users;
@@ -451,10 +479,14 @@ function fn_helpdesk_get_mail() {
     $mailboxes = fn_get_mailboxes();
     $i = 0;
     $mails = array();
+
     foreach ($mailboxes as $settings) {
         $mail_reader = Tygh::$app['addons.helpdesk.mail_reader'];
         $mail_reader->setSettings(['host' => "{" . $settings['host'] . "}", 'login' => $settings['email'], 'password' => $settings['password'] ] );
-        if ($mail_reader) {
+        if ($errors = $mail_reader->getErrors()) {
+            fn_print_r($settings['mailbox_name'], $errors);
+            continue;
+        } else {
             $mails = $mail_reader->getMail();
             if (!empty($mails)) {
                 foreach ($mails as $mail) {
@@ -517,14 +549,14 @@ function fn_helpdesk_get_mail() {
 
 function fn_helpdesk_send_mail() {
     $mailboxes = fn_get_mailboxes();
-    $messages = db_get_array('SELECT m.*, t.subject, t.mailbox_id, u.user_type FROM ?:helpdesk_messages AS m LEFT JOIN ?:helpdesk_tickets AS t ON t.ticket_id = m.ticket_id LEFT JOIN ?:users AS u ON u.user_id = m.user_id WHERE notified = ?s LIMIT 300', 'N');
+    $messages = db_get_array('SELECT m.*, t.subject, t.mailbox_id, u.user_type FROM ?:helpdesk_messages AS m LEFT JOIN ?:helpdesk_tickets AS t ON t.ticket_id = m.ticket_id LEFT JOIN ?:users AS u ON u.user_id = m.user_id WHERE notified = ?s AND m.timestamp > ?i LIMIT 300', 'N', TIME - (SECONDS_IN_DAY * 7));
     foreach ($messages as &$message) {
         if ($message['user_type'] == 'C') {
             $user_type_condition = db_quote(" AND u.user_type != ?s", 'C');
         } else {
             $user_type_condition = db_quote(" AND u.user_type = ?s", 'C');
         }
-        $message['users'] = fn_get_ticket_users(array('ticket_id' => $message['ticket_id'], 'user_type' => ($message['user_type'] == 'C') ? ['A', 'V'] : 'C', 'notification' => 'Y'));
+        $message['users'] = fn_get_ticket_users(array('ticket_id' => $message['ticket_id'], 'user_type' => ($message['user_type'] == 'C') ? ['A', 'V'] : 'C', 'notification' => YesNo::YES));
     }
 
     $mailer = Tygh::$app['mailer'];
@@ -559,13 +591,13 @@ function fn_helpdesk_send_mail() {
             );
             $mailer_settings = fn_array_merge(Registry::get('settings.Emails'), $mailbox_email_settings);
             
-            fn_set_hook('helpdesk_send_message_pre', $notified, $message, $mailboxes[$message['mailbox_id']]);
+            fn_set_hook('helpdesk_send_message_pre', $message, $mailboxes[$message['mailbox_id']]);
 
-            if (!$notified) {
+            if (!empty($message['users'])) {
                 $to = array_filter(filter_var_array(array_column($message['users'], 'email'), FILTER_VALIDATE_EMAIL));
                 if (!empty($to)) {
                     $notified = $mailer->send(array(
-                        'to' => array_column($message['users'], 'email'),
+                        'to' => $to,
                         'from' => array('name' => $mailboxes[$message['mailbox_id']]['mailbox_name'], 'email' => $settings['email']),
                         'tpl' => $body,
                         'is_html' => true,
@@ -575,10 +607,9 @@ function fn_helpdesk_send_mail() {
                             ),
                         'attachments' => $attachements,
                     ), 'A', Registry::get('settings.Appearance.backend_default_language'), $mailer_settings);
-                } else {
-                    $notified = true;
                 }
             }
+            $notified = true;
         } else {
             $notified = true;
         }
@@ -608,7 +639,7 @@ function fn_helpdesk_can_user_access_ticket($ticket_id, array $auth) {
         return $can_access;
     }
 
-    if (AREA === 'C' || fn_is_restricted_admin(db_get_row("SELECT user_id, is_root, company_id FROM ?:users WHERE user_id = ?i", $auth['user_id']))) {
+    if (SiteArea::isStorefront(AREA) || fn_is_restricted_admin(db_get_row("SELECT user_id, is_root, company_id FROM ?:users WHERE user_id = ?i", $auth['user_id']))) {
         $can_access = (bool) db_get_field(
             'SELECT ticket_id FROM ?:helpdesk_ticket_users WHERE user_id = ?i AND ticket_id = ?i',
             $auth['user_id'],
@@ -626,9 +657,10 @@ function fn_helpdesk_can_user_access_ticket($ticket_id, array $auth) {
 function fn_helpdesk_get_predefined_statuses($type, &$statuses) {
     if ($type == 'helpdesk') {
         $statuses['helpdesk'] = array(
-            'N' => __('new'),
-            'C' => __('closed'),
-            'W' => __('waiting')
+            'N' => __('helpdesk.new'),
+            'O' => __('helpdesk.open'),
+            'W' => __('helpdesk.at_work'),
+            'C' => __('helpdesk.closed'),
         );
     }
 }

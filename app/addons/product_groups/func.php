@@ -14,7 +14,7 @@
 use Tygh\Registry;
 use Tygh\Enum\YesNo;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_get_product_groups($params) {
     $condition = '';
@@ -93,7 +93,29 @@ function fn_product_groups_get_groups_from_products($products) {
     if (!empty($products) && $group_ids = array_filter(array_unique(fn_array_column($products, 'group_id')))) {
         $groups = fn_get_product_groups(array('group_ids' => $group_ids));
     }
-    return $groups;
+
+    $free_products = array_filter($products, function($v) {
+        return !$v['price'] && !empty($v['extra']['exclude_from_calculate']);
+    });
+
+    if (!empty($free_products)) {
+        $companies = array_unique(fn_array_column($free_products, 'company_id'));
+        $separate_zero_products_for_companies = db_get_fields('SELECT company_id FROM ?:companies WHERE company_id IN (?a) AND separate_zero_products = ?s', $companies, YesNo::YES);
+        $free_products = array_filter($free_products, function($v) use ($separate_zero_products_for_companies) {
+            return in_array($v['company_id'], $separate_zero_products_for_companies);
+        });
+        $free_group_ids = array_unique(fn_array_column($free_products, 'group_id'));
+        foreach ($free_group_ids as $free_group_id) {
+            $groups[$free_group_id."_free"] = $groups[$free_group_id];
+            $groups[$free_group_id."_free"]['mandatory_order_split'] = YesNo::YES;
+        }
+
+        foreach ($free_products as $cart_id => $product) {
+            $products[$cart_id]['group_id'] .= '_free';
+        }
+    }
+
+    return [$groups, $products];
 }
 
 function fn_product_groups_get_package_info(&$group) {
@@ -144,21 +166,22 @@ function fn_product_groups_split_cart($cart, $only_mandatory_order_split = false
     $p_groups = array();
     if (!fn_cart_is_empty($cart)) {
         foreach ($cart['product_groups'] as $group_key => $group_data) {
-            if ($groups = fn_product_groups_get_groups_from_products($group_data['products'])) {
+            if (list($groups, $group_products) = fn_product_groups_get_groups_from_products($group_data['products'])) {
                 foreach ($groups as $group_id => $group) {
                     if (!(YesNo::toBool($group['mandatory_order_split']) || (isset($cart['split_order']) && YesNo::toBool($cart['split_order'][$group_id]) && !$only_mandatory_order_split))) continue;
 
                     $proto = $group_data;
-                    $proto['group_id'] = $group_id;
+                    $proto['group_id'] = $group['group_id'];
                     $proto['subtotal'] = 0;
                     $proto['group'] = $group;
                     $proto['name'] .= ' (' . $group['group'] . ')';
                     $proto['products'] = [];
 
-                    foreach ($group_data['products'] as $cart_id => $product) {
-                        if ($product['group_id'] == $group_id) {
+                    foreach ($group_products as $cart_id => $product) {
+                        // string "(int)_free" can be converted to (int) during comparison
+                        if ((string) $group_id == (string) $product['group_id']) {
                             $proto['products'][$cart_id] = $product;
-                            unset($group_data['products'][$cart_id]);
+                            unset($group_products[$cart_id]);
                         }
                     }
                     fn_product_groups_get_package_info($proto);
@@ -166,9 +189,10 @@ function fn_product_groups_split_cart($cart, $only_mandatory_order_split = false
                 }
             }
 
-            if (!empty($group_data['products'])) {
+            if (!empty($group_products)) {
+                $group_data['products'] = $group_products;
                 fn_product_groups_get_package_info($group_data);
-                $p_groups[] = $group_data;  
+                $p_groups[] = $group_data;
             }
         }
     }
@@ -178,7 +202,7 @@ function fn_product_groups_split_cart($cart, $only_mandatory_order_split = false
 
 function fn_product_groups_calculate_cart_post(&$cart, $auth, $calculate_shipping, $calculate_taxes, $options_style, $apply_cart_promotions, $cart_products, $product_groups) {
     unset($cart['ask_to_split_order']);
-    if ($groups = fn_product_groups_get_groups_from_products($cart['products'])) {
+    if (list($groups) = fn_product_groups_get_groups_from_products($cart['products'])) {
         foreach ($groups as $group) {
             if (!YesNo::toBool($group['mandatory_order_split'])) {
                 $cart['ask_to_split_order'][$group['group_id']] = $group['group'];
@@ -188,7 +212,7 @@ function fn_product_groups_calculate_cart_post(&$cart, $auth, $calculate_shippin
 }
 
 function fn_product_groups_pre_update_order(&$cart, $order_id = 0) {
-    $cart['product_groups'] = fn_product_groups_split_cart($cart);
+    if (empty($cart['parent_order_id'])) $cart['product_groups'] = fn_product_groups_split_cart($cart);
     if (count($cart['product_groups']) == 1) {
         $cart['group_id'] = isset(reset($cart['product_groups'])['group_id']) ? reset($cart['product_groups'])['group_id'] : 0;
     }
@@ -206,18 +230,19 @@ function fn_product_groups_place_suborders_pre($order_id, $cart, $auth, $action,
     $suborder_cart['group_id'] = $group['group_id'] ? : 0;
 }
 
-function fn_product_groups_place_suborders($cart, &$suborder_cart) {
-    $products = $suborder_cart['products'];
-    if ($products != $suborder_cart['products']) {
-        unset($suborder_cart['promotions'], $suborder_cart['applied_promotions']);
-    }
-    if ($suborder_cart['subtotal'] == 0) {
-        foreach ($suborder_cart['promotions'] as $promotion_id => $promo_data) {
+function fn_product_groups_place_suborders($cart, &$suborder_cart, $key_group) {
+    $suborder_cart['products'] = $cart['product_groups'][$key_group]['products'];
+
+    foreach ($suborder_cart['promotions'] as $promotion_id => $promo_data) {
+        if (!empty($promo_data['bonuses'])) {
             $found = false;
             foreach ($promo_data['bonuses'] as $bonus) {
-                if ($bonus['bonus'] == 'free_products') {
-                    $products = fn_array_column($bonus['value'], 'product_id');
-                    $cart_products = array_column($suborder_cart['products'], 'product_id');
+                if (in_array($bonus['bonus'], ['free_products', 'promotion_step_free_products'])) {
+                    $products = array_column($bonus['value'], 'product_id');
+                    $cart_products = array_filter($suborder_cart['products'], function($v) {
+                        return !$v['price'];
+                    });
+                    $cart_products = array_column($cart_products, 'product_id');
                     foreach ($products as $pid) {
                         $found = ($found || in_array($pid, $cart_products));
                     }
@@ -241,5 +266,14 @@ function fn_product_groups_pre_get_orders($params, &$fields, $sortings, $get_tot
 function fn_product_groups_get_products($params, $fields, $sortings, &$condition, $join, $sorting, $group_by, $lang_code, $having) {
     if (isset($params['group_id']) && !empty($params['group_id'])) {
         $condition .= db_quote(' AND products.group_id = ?i', $params['group_id']);
+    }
+}
+
+function fn_product_groups_exim1c_order_xml_pre(&$order_xml, $order_data, $cml) {
+    if (isset($order_data['group_id']) && !empty($order_data['group_id'])) {
+        $order_xml[$cml['value_fields']][][$cml['value_field']] = array(
+            $cml['name'] => $cml['product_group'],
+            $cml['value'] => db_get_field('SELECT `group` FROM ?:product_groups WHERE group_id = ?i', $order_data['group_id'])
+        );
     }
 }

@@ -3,6 +3,8 @@
 use Tygh\Registry;
 use Tygh\Enum\SiteArea;
 
+defined('BOOTSTRAP') or die('Access denied');
+
 function fn_get_conditions($conditions, &$promo_extra) {
     
     foreach ($conditions as $condition) {
@@ -103,12 +105,7 @@ function fn_category_promotion_get_products_before_select(&$params, $join, &$con
                 $data = array_filter($data);
                 $product_ids = array_unique(explode(',', implode(',', $data)));
 
-                $usergroup_ids = db_get_field('SELECT usergroup_ids FROM ?:categories WHERE category_id = ?i', $params['cid']);
-                $ug_condition = fn_find_array_in_set(explode(',', $usergroup_ids), 'usergroup_ids', true); 
-                $company_id = db_get_field("SELECT company_id FROM ?:companies AS c LEFT JOIN ?:vendor_plans AS vc ON c.plan_id = vc.plan_id WHERE $ug_condition");
-                if ($company_id) {
-                    $params['company_id'] = $company_id;
-                }
+                fn_set_hook('category_promotion_get_products_before_select', $params);
             }
 
             if (!empty($product_ids)) {
@@ -206,16 +203,63 @@ function fn_cleanup_promotion_condition(&$conditions_group, $allowed_conditions)
 }
 
 function fn_category_promotion_get_autostickers_pre(&$stickers, &$product, $auth, $params) {
-    $promo_params = array(
-        'get_hidden' => true,
-        'active' => true,
-        'product_ids' => array($product['product_id']),
-    );
-    list($promotions, ) = fn_get_promotions($promo_params);
-    if (!empty($promotions)) {
-        $promotion = reset($promotions);
-        $product['promo'] = $promotion;
-        $stickers['promotion'] = (!empty($promotion['sticker_ids'])) ? $promotion['sticker_ids'] : Registry::get('addons.category_promotion.promotion_sticker_id');
+    if (!empty($params['get_for_one_product'])) {
+        $promo_params = array(
+            'get_hidden' => true,
+            'active' => true,
+            'product_ids' => array($product['product_id']),
+        );
+
+        list($promotions, ) = fn_get_promotions($promo_params);
+        if (!empty($promotions)) {
+            $promotion = reset($promotions);
+            $product['promo'] = $promotion;
+            $stickers['promotion'] = (!empty($promotion['sticker_ids'])) ? $promotion['sticker_ids'] : Registry::get('addons.category_promotion.promotion_sticker_id');
+        }
+    }
+}
+
+function fn_category_promotion_gather_additional_products_data_post($product_ids, $params, &$products, $auth, $lang_code) {
+    if (Registry::get('addons.product_stickers.status') == 'A') {
+        if (empty($params['get_for_one_product'])) {
+            $promo_params = array(
+                'get_hidden' => true,
+                'active' => true,
+                'product_ids' => $product_ids,
+            );
+            list($promotions, ) = fn_get_promotions($promo_params);
+            if (!empty($promotions)) {
+                foreach($promotions as $promotion) {
+                    if (!empty($promotion['products'])) {
+                        foreach(explode(',', $promotion['products']) as $product_id) {
+                            if (!in_array($product_id, $product_ids)) continue;
+                            foreach ($products as &$product) {
+                                if ($product['product_id'] != $product_id) continue;
+                                
+                                if (!empty($product['promo'])) continue;
+
+                                $product['promo'] = $promotion;
+                                $sticker_id = (!empty($promotion['sticker_ids'])) ? $promotion['sticker_ids'] : Registry::get('addons.category_promotion.promotion_sticker_id');
+
+                                $_params = array();
+                                $_params['sticker_id'] = (!empty($promotion['sticker_ids'])) ? $promotion['sticker_ids'] : Registry::get('addons.category_promotion.promotion_sticker_id');
+                                $_params['get_stickers_for'] = $params['get_stickers_for'];
+                                $_params['usergroup_ids'] = Tygh::$app['session']['auth']['usergroup_ids'];
+                                $_params['product'] = $product;
+                                if ($res = fn_get_stickers($_params)) {
+                                    if (empty($product['stickers'])) {
+                                        $product['stickers'] = $res;
+                                    } else {
+                                        $product['stickers'] = array_merge($products[$product_id]['stickers'], $res);
+                                    }
+                                }
+                            }
+                            unset($product);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -288,11 +332,46 @@ function fn_category_promotion_check_unique_amount_conditioned_products($id, $pr
     return count(array_unique(array_column($cart_products, 'product_id')));
 }
 
+function fn_category_promotion_pre_add_to_cart(&$product_data, $cart, $auth, $update) {
+    if ($update) {
+        foreach ($product_data as $key => &$data) {
+            if (isset($cart['products'][$key]['extra']['limit_discount_bonus_by_amount_packages'])) {
+                $data['extra']['limit_discount_bonus_by_amount_packages'] = $cart['products'][$key]['extra']['limit_discount_bonus_by_amount_packages'];
+            }
+        }
+        unset($data);
+    }
+}
+
 function fn_category_promotion_apply_cart_rule($bonus, &$cart, &$auth, &$cart_products) {
-    if ($bonus['bonus'] == 'discount_on_products_from_conditions') {
+    if (in_array($bonus['bonus'], ['discount_on_products_from_conditions', 'static_discount_on_products_from_conditions'])) {
+        static $promotions = [];
+
         $condition_products = fn_category_promotion_get_cart_promotioned_products($bonus['promotion_id'], $cart_products);
 
-        foreach ($cart_products as $k => $v) {
+        if (!isset($promotions[$bonus['promotion_id']])) {
+            $promotions[$bonus['promotion_id']] = fn_get_promotion_data($bonus['promotion_id']);
+        }
+
+        $promotion = $promotions[$bonus['promotion_id']];
+        if (!isset($cart['limit_discount_bonus_by_amount_packages'][$bonus['promotion_id']])) {
+            $cart['limit_discount_bonus_by_amount_packages'][$bonus['promotion_id']] = fn_find_promotion_condition($promotion['conditions'], 'limit_discount_bonus_by_amount_packages');
+        }
+        $limit_discount_bonus_condition = &$cart['limit_discount_bonus_by_amount_packages'][$bonus['promotion_id']];
+
+        if (!empty($limit_discount_bonus_condition)) {
+            foreach ($cart['products'] as $k => $v) {
+                if (!empty($v['extra']['limit_discount_bonus_by_amount_packages'])) {
+                    $cart['products'][$v['extra']['limit_discount_bonus_by_amount_packages']]['amount'] += $v['amount'];
+                    if (fn_delete_cart_product($cart, $k)) unset($cart_products[$k]);
+                }
+            }
+        }
+
+        $sort = array_column($cart['products'], 'timestamp', 'item_id');
+        asort($sort);
+        $cart_products = fn_array_merge($sort, $cart_products);
+        foreach (fn_array_merge($sort, $cart_products) as $k => $v) {
             if (isset($v['exclude_from_calculate']) || (!floatval($v['base_price']) && $v['base_price'] != 0)) {
                 continue;
             }
@@ -301,37 +380,58 @@ function fn_category_promotion_apply_cart_rule($bonus, &$cart, &$auth, &$cart_pr
 
             if ($bonus['bonus'] == 'discount_on_products_from_conditions') {
                 $valid = fn_promotion_validate_attribute($v['product_id'], $bonus['value'], 'in') && fn_promotion_validate_attribute($v['product_id'], array_column($condition_products, 'product_id'), 'in');
-            }
-
-            if ($valid) {
-                if (!isset($cart_products[$k]['promotions'])) {
-                    $cart_products[$k]['promotions'] = array();
-                }
-
-                if (isset($cart['products'][$k]['extra']['promotions'][$bonus['promotion_id']])) {
-                    $cart_products[$k]['promotions'][$bonus['promotion_id']] = $cart['products'][$k]['extra']['promotions'][$bonus['promotion_id']];
-                }
-
-                if (!isset($cart_products[$k]['promotions'][$bonus['promotion_id']])
-                    && fn_promotion_apply_discount($bonus['promotion_id'], $bonus, $cart_products[$k], true, $cart, $cart_products)
-                ) {
-                    $cart['use_discount'] = true;
-                }
-            }
-        }
-    }
-    if ($bonus['bonus'] == 'static_discount_on_products_from_conditions') {
-        $condition_products = fn_category_promotion_get_cart_promotioned_products($bonus['promotion_id'], $cart_products);
-
-        foreach ($cart_products as $k => $v) {
-            if (isset($v['exclude_from_calculate']) || (!floatval($v['base_price']) && $v['base_price'] != 0)) {
-                continue;
-            }
-
-            $valid = false;
-
-            if ($bonus['bonus'] == 'static_discount_on_products_from_conditions') {
+            } elseif ($bonus['bonus'] == 'static_discount_on_products_from_conditions') {
                 $valid = fn_promotion_validate_attribute($v['product_id'], array_column($condition_products, 'product_id'), 'in');
+            }
+
+            if ($valid && !empty($limit_discount_bonus_condition)) {
+                // override by fn_promotion_validate_attribute
+                if ($limit_discount_bonus_condition['value'] >= $cart['products'][$k]['amount']/$v['items_in_package']) {
+                    $limit_discount_bonus_condition['value'] -= $cart['products'][$k]['amount']/$v['items_in_package'];
+                } elseif ($limit_discount_bonus_condition['value'] > 0 && $limit_discount_bonus_condition['value'] >= max($v['qty_step'], $v['min_qty'])/$v['items_in_package']) {
+
+                    // we should divide sku into two rows
+                    $first_amount = $limit_discount_bonus_condition['value'] * $v['items_in_package'];
+                    $first_amount -= fmod($first_amount, max($v['qty_step'], $v['min_qty']));
+
+                    if ($first_amount) {
+                        $product_data = array (
+                            $v['product_id'] => array (
+                                'amount' => $cart['products'][$k]['amount'] - $first_amount,
+                                'product_id' => $v['product_id'],
+                                'extra' => $cart['products'][$k]['extra']
+                            ),
+                        );
+                        $product_data[$v['product_id']]['extra']['limit_discount_bonus_by_amount_packages'] = $k;
+
+                        $cart['products'][$k]['amount'] = $first_amount;
+                        $existing_products = array_keys($cart['products']);
+
+                        if ($ids = fn_add_product_to_cart($product_data, $cart, $auth)) {
+
+                            $new_products = array_diff(array_keys($cart['products']), $existing_products);
+
+                            if (!empty($new_products)) {
+                                $hash = array_pop($new_products);
+                            } else {
+                                $hash = key($ids);
+                            }
+
+                            $_cproduct = fn_get_cart_product_data($hash, $cart['products'][$hash], true, $cart, $auth, !empty($new_products) ? 0 : $p_data['amount']);
+                            if (!empty($_cproduct)) {
+                                $cart_products[$hash] = $_cproduct;
+                            }
+                        }
+
+                        $cart['recalculate'] = true;
+                        fn_save_cart_content($cart, $auth['user_id']);
+                        $limit_discount_bonus_condition['value'] -= $first_amount/$v['items_in_package'];
+                    } else {
+                        $valid = false;
+                    }
+                } else {
+                    $valid = false;
+                }
             }
 
             if ($valid) {
@@ -353,4 +453,14 @@ function fn_category_promotion_apply_cart_rule($bonus, &$cart, &$auth, &$cart_pr
     }
 
     return true;
+}
+
+function fn_category_promotion_generate_cart_id(&$_cid, $extra) {
+    if (!empty($extra['limit_discount_bonus_by_amount_packages'])) {
+        $_cid['limit_discount_bonus_by_amount_packages'] = $extra['limit_discount_bonus_by_amount_packages'];
+    }
+}
+
+function fn_category_promotion_promotion_apply_pre($promotions, $zone, &$data, $auth, $cart_products) {
+    unset($data['limit_discount_bonus_by_amount_packages']);
 }

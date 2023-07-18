@@ -30,6 +30,9 @@ body {
     --grid-width-max: 300px;
     --border-color: @border-color;
     --border-color-active: @border-color-active;
+    --button-background: lighten(@grey, 5%);
+    --button-background-active: @grey-bg;
+    --scroller-gap: 15px;
 }
 * {
     outline: 0;
@@ -84,15 +87,35 @@ select {
     }
 }
 
+.flex-grid(@margin: 6px) {
+    &[class*="span"] {
+        display: flex;
+        align-items: center;
+        width: calc(~"100% + "2*@margin);
+        flex-wrap: wrap;
+        margin: 0 -@margin !important;
+    }
+    > div {
+        flex: 0 1 auto;
+        margin: @margin;
+        &:first-child {
+            flex-basis: 210px;
+        }
+    }
+    .ty-flex-right {
+        margin-left: auto;
+    }
+}
+
 .ty-tile-button() {
     .border-radius(@border-radius);
     .transition(@transition);
     .ty-aurora-border();
     white-space: nowrap;
     padding: 8px 10px;
-    background-color: lighten(@grey, 5%);
+    background-color: var(--button-background);
     &:hover, &.selected {
-        background-color: @grey-bg;
+        background-color: var(--button-background-active);
         .box-shadow(0px 0px 10px -2px @border-color-active);
     }
     &:focus {
@@ -138,7 +161,7 @@ select {
         .ui-dialog-title {
             float: none;
             padding-right: 0;
-            max-width: calc(100% - 50px);
+            max-width: calc(~"100% - 50px");
             display: inline-block;
         }
     }
@@ -226,26 +249,23 @@ select {
     }
     &__add-to-cart {
         text-transform: unset;
-        font-size: 20px;
+        font-size: 18px;
+        padding: 6px 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        margin: initial;
         .ty-icon-aurora-cart();
         .aurora-glyphs();
         &:before {
-            margin-right: 5px;
             font-size: 22px;
-            // vertical-align: middle;
         }
-        .ty-grid-list & {
-            .border-radius(500px);
-            display: inline-block;
-            .square(45px);
-            padding: initial;
-            font-weight: bold;
-            &:before {
-                margin: 0;
-            }
-            &:hover, &.ty-btn__active {
-                background-color: #50b946;
-            }
+    }
+    &__full-width {
+        width: 100%;
+        &:before {
+            margin-right: 5px;
         }
     }
     &__add-to-wish {
@@ -292,6 +312,9 @@ select {
         // @media @mobile {
         //     padding: 6px 10px;
         // }
+        .ty-account-info__title {
+            padding: initial;
+        }
         .ty-top-menu & .ty-minicart__icon, .ty-top-menu & .ty-icon-user {
             position: static;
             font-size: 20px;
@@ -340,16 +363,20 @@ select {
         .ty-account-info__buttons {
             background-color: transparent;
         }
+        .ty-dropdown-align-left & {
+            left: 0;
+            right: auto;
+        }
+        .ty-dropdown-align-right & {
+            right: 0;
+            left: auto;
+        }
     }
     &__content &__item:not(.ty-account-info__name) {
         &:hover {
             background-color: @base;
             color: #fff;
         }
-    }
-    .ty-icon-aurora-truck {
-        font-size: 24px;
-        margin-right: 8px;
     }
 }
 
@@ -710,49 +737,5 @@ select {
         background-color: #fff;
         width: 26px;
         box-sizing: border-box;
-    }
-}
-
-.ty-switcher-checkbox {
-    margin: 5px 0;
-    &__control {
-        .transition(@transition);
-        .border-radius(50px);
-        border: 1px solid #ebebeb;
-        display: inline-block;
-        box-sizing: border-box;
-        width: 50%;
-        text-align: center;
-        padding: 8px;
-        cursor: pointer;
-        &:hover {
-            background-color: lighten(#ebebeb, 5%);
-        }
-        &:not(:first-of-type) {
-            margin-left: -1px;
-        }
-        &:first-of-type {
-            .border-right-radius(0);   
-        }
-        &:last-of-type {
-            .border-left-radius(0);   
-        }
-        input[type="checkbox"] ~ &:first-of-type {
-            background-color: #ebebeb;
-            box-shadow: inset 0 0 6px 0px darken(#ebebeb, 20%);
-        }
-        input[type="checkbox"]:checked ~ & {
-            &:first-of-type {
-                background-color: transparent;
-                box-shadow: none;
-                &:hover {
-                    background-color: lighten(#ebebeb, 5%);
-                }
-            }
-            &:last-of-type {
-                background-color: #ebebeb;
-                box-shadow: inset 0 0 6px 0px darken(#ebebeb, 20%);
-            }
-        }
     }
 }

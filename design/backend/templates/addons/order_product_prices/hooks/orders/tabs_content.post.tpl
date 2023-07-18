@@ -6,6 +6,7 @@
                 <th width="50%">{__("product")}</th>
                 <th width="10%">{__("base_price")}</th>
                 <th width="10%">{__("price")}</th>
+                <th width="10%">{__("extra_price")}</th>
                 {if $order_info.use_discount}
                 <th width="5%">{__("discounted_price")}</th>
                 {/if}
@@ -29,9 +30,16 @@
                 </div>
             </td>
             <td class="nowrap" data-th="{__("base_price")}">
-                {include file="common/price.tpl" value=$oi.initial_price}</td>
+                {include file="common/price.tpl" value=$oi.extra.initial_price}
+            </td>
             <td class="nowrap" data-th="{__("price")}">
-                {include file="common/price.tpl" value=$oi.original_price}</td>
+                {include file="common/price.tpl" value=$oi.original_price}
+            </td>
+            <td class="nowrap" data-th="{__("extra_price")}">
+                {if $oi.extra.initial_price|intval && $oi.original_price > $oi.extra.initial_price}
+                    {$extra_price=($oi.original_price/$oi.extra.initial_price - 1)*100}
+                    {$extra_price|string_format:"%.2f"}%
+                {else}-{/if}
             </td>
             {if $order_info.use_discount}
             <td class="nowrap" data-th="{__("discounted_price")}">

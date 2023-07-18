@@ -3,7 +3,7 @@
 use Tygh\Commerceml\ExRusEximCommerceml;
 use Tygh\Commerceml\Logs;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 if (!empty($_SERVER['PHP_AUTH_USER'])) {
     $data['user_login'] = $_SERVER['PHP_AUTH_USER'];
@@ -127,6 +127,8 @@ if ($type == 'catalog') {
         }
 
     } elseif ($mode == 'success') {
+        fn_echo("success");
+    } elseif ($mode == 'import') {
         fn_echo("success");
     }
 }

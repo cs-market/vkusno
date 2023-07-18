@@ -1,19 +1,20 @@
 <?php
 
 use Tygh\Registry;
-// use Tygh\Models\Vendor;
-// use Tygh\Enum\ObjectStatuses;
-// use Tygh\Enum\ProfileDataTypes;
 use Tygh\Enum\SiteArea;
-// use Tygh\Enum\UserTypes;
-// use Tygh\Enum\UsergroupTypes;
-// use Tygh\Storage;
+use Tygh\Enum\UsergroupTypes;
 use Tygh\Enum\YesNo;
-// use Tygh\BlockManager\Block;
 use Tygh\Enum\ObjectStatuses;
 use Tygh\Enum\UserTypes;
+use Tygh\Navigation\LastView\Backend;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
+
+/* ADDON SETTINGS */
+function fn_settings_variants_addons_maintenance_service_usergroups() {
+    return array_column(fn_get_usergroups(['type' => UsergroupTypes::TYPE_CUSTOMER]), 'usergroup', 'usergroup_id');
+}
+/* /ADDON SETTINGS */
 
 /* HOOKS */
 function fn_maintenance_pre_add_to_cart($product_data, &$cart, $auth, $update) {
@@ -114,6 +115,19 @@ function fn_maintenance_get_users($params, $fields, $sortings, &$condition, $joi
     }
 }
 
+function fn_maintenance_mailer_create_message_before($_this, &$message, $area, $lang_code, $transport, $builder) {
+    // DO NOT TRY TO SEND EMAILS TO @example.com
+    if (!empty($message['to'])) {
+        if (is_array($message['to'])) {
+            $message['to'] = array_filter($message['to'], function($v) {
+                return strpos($v, '@example.com') === false;
+            });
+        } elseif (is_string($message['to'])) {
+            $message['to'] = (strpos($v, '@example.com') === false) ? $message['to'] : '';
+        }
+    }
+}
+
 /* END HOOKS */
 
 function fn_maintenance_promotion_get_dynamic($promotion_id, $promotion, $condition, &$cart, &$auth = NULL) {
@@ -155,37 +169,44 @@ function fn_maintenance_get_usergroup_ids($data, $without_status = true) {
     $pair_delimiter = ':';
     $set_delimiter = ',';
     $return = [];
-    if (is_array($data)) {
-        $usergroups = $data;
-    } else {
-        $data = str_replace(';', $set_delimiter, $data);
-        $usergroups = explode($set_delimiter, $data);
-    }
+    static $usergroup_cache = [];
+    $_cache_key = md5($data);
+    if (empty($usergroup_cache[$_cache_key])) {
+        if (is_array($data)) {
+            $usergroups = $data;
+        } else {
+            $data = str_replace(';', $set_delimiter, $data);
+            $usergroups = explode($set_delimiter, $data);
+        }
 
-    if (!empty($usergroups)) {
-        array_walk($usergroups, 'fn_trim_helper');
-        foreach ($usergroups as $ug) {
-            $ug_data = fn_explode($pair_delimiter, $ug);
-            if (is_array($ug_data)) {
-                // Check if user group exists
-                $ug_id = false;
-                // search by ID
-                if (is_numeric($ug_data[0])) {
-                    if (in_array($ug_data[0], [USERGROUP_ALL, USERGROUP_GUEST, USERGROUP_REGISTERED])) {
-                        $ug_id = $ug_data[0];
-                    } elseif ($res = db_get_field("SELECT usergroup_id FROM ?:usergroups WHERE usergroup_id = ?i", $ug_data[0])) {
-                        $ug_id = $res;
+        if (!empty($usergroups)) {
+            array_walk($usergroups, 'fn_trim_helper');
+            foreach ($usergroups as $ug) {
+                $ug_data = fn_explode($pair_delimiter, $ug);
+                if (is_array($ug_data)) {
+                    // Check if user group exists
+                    $ug_id = false;
+                    // search by ID
+                    if (is_numeric($ug_data[0])) {
+                        if (in_array($ug_data[0], [USERGROUP_ALL, USERGROUP_GUEST, USERGROUP_REGISTERED])) {
+                            $ug_id = $ug_data[0];
+                        } elseif ($res = db_get_field("SELECT usergroup_id FROM ?:usergroups WHERE usergroup_id = ?i", $ug_data[0])) {
+                            $ug_id = $res;
+                        }
                     }
-                }
-                // search by name
-                if ($ug_id === false && ($db_id = db_get_field("SELECT usergroup_id FROM ?:usergroup_descriptions WHERE usergroup = ?s AND lang_code = ?s", $ug_data[0], DESCR_SL))) {
-                    $ug_id = $db_id;
-                }
-                if ($ug_id !== false) {
-                    $return[$ug_id] = isset($ug_data[1]) ? $ug_data[1] : ObjectStatuses::ACTIVE;
+                    // search by name
+                    if ($ug_id === false && ($db_id = db_get_field("SELECT usergroup_id FROM ?:usergroup_descriptions WHERE usergroup = ?s AND lang_code = ?s", $ug_data[0], DESCR_SL))) {
+                        $ug_id = $db_id;
+                    }
+                    if ($ug_id !== false) {
+                        $return[$ug_id] = isset($ug_data[1]) ? $ug_data[1] : ObjectStatuses::ACTIVE;
+                    }
                 }
             }
         }
+        $usergroup_cache[$_cache_key] = $return;
+    } else {
+        $return = $usergroup_cache[$_cache_key];
     }
 
     return ($without_status ? array_keys($return) : $return);
@@ -294,5 +315,133 @@ if (!is_callable('fn_find_promotion_condition')) {
         }
 
         return $res;
+    }
+}
+
+function fn_maintenance_exim_import_price($price, $decimals_separator = false) {
+    if (is_string($price)) {
+        $price = str_replace([' ', ','], ['', '.'], $price);
+    }
+
+    return (float) $price;
+}
+
+function fn_exim_get_last_view_order_ids_condition()
+{
+    $last_view = new Backend(AREA, 'orders', 'index');
+    $view_id = $last_view->getCurrentViewId();
+
+    $last_view_results = $last_view->getViewParams($view_id);
+    
+    $data_function_params = [];
+    if ($last_view_results) {
+        unset(
+            $last_view_results['total_items'],
+            $last_view_results['sort_by'],
+            $last_view_results['sort_order'],
+            $last_view_results['sort_order_rev'],
+            $last_view_results['page'],
+            $last_view_results['items_per_page']
+        );
+        $data_function_params = $last_view_results;
+    }
+
+    $data_function_params['get_conditions'] = true;
+
+    list($fields, $join, $condition) = fn_get_orders($data_function_params, 0, CART_LANGUAGE);
+
+    $order_ids = db_get_fields(
+        'SELECT DISTINCT ?p' .
+        ' FROM ?:orders' .
+        ' ?p' .
+        ' WHERE 1 = 1' .
+        ' ?p',
+        '?:orders.order_id',
+        $join,
+        $condition
+    );
+
+    return [
+        'order_id' => $order_ids
+    ];
+}
+
+function fn_exim_get_last_view_orders_count()
+{ 
+    $last_view = new Backend(AREA, 'orders', 'index');
+    $view_id = $last_view->getCurrentViewId();
+
+    $last_view_results = $last_view->getViewParams($view_id);
+
+    if (!$last_view_results) {
+        return 0;
+    }
+
+    return $last_view_results['total_items'];
+}
+
+function fn_exim_get_last_view_user_ids_condition()
+{
+    $last_view = new Backend(AREA, 'profiles', 'index');
+    $view_id = $last_view->getCurrentViewId();
+
+    $last_view_results = $last_view->getViewParams($view_id);
+    
+    $data_function_params = [];
+    if ($last_view_results) {
+        unset(
+            $last_view_results['total_items'],
+            $last_view_results['sort_by'],
+            $last_view_results['sort_order'],
+            $last_view_results['sort_order_rev'],
+            $last_view_results['page'],
+            $last_view_results['items_per_page']
+        );
+        $data_function_params = $last_view_results;
+    }
+
+    $data_function_params['get_conditions'] = true;
+
+    list($fields, $join, $condition) = fn_get_users($data_function_params, Tygh::$app['session']['auth'], 0, CART_LANGUAGE);
+
+    $user_ids = db_get_fields(
+        'SELECT DISTINCT ?p' .
+        ' FROM ?:users' .
+        ' ?p' .
+        ' WHERE 1 = 1' .
+        ' ?p',
+        '?:users.user_id',
+        $join,
+        implode(' ', $condition)
+    );
+
+    return [
+        'user_id' => $user_ids
+    ];
+}
+
+function fn_exim_get_last_view_users_count()
+{ 
+    $last_view = new Backend(AREA, 'profiles', 'index');
+    $view_id = $last_view->getCurrentViewId();
+
+    $last_view_results = $last_view->getViewParams($view_id);
+
+    if (!$last_view_results) {
+        return 0;
+    }
+
+    return $last_view_results['total_items'];
+}
+
+function fn_maintenance_get_payments_pre(&$params) {
+    if (defined('ORDER_MANAGEMENT')) {
+        $params['status'] = 'A';
+    }
+}
+
+function fn_maintenance_shippings_get_shippings_list_conditions($group, $shippings, $fields, $join, &$condition, $order_by) {
+    if (defined('ORDER_MANAGEMENT')) {
+        $condition .= " AND (" . fn_find_array_in_set(\Tygh::$app['session']['customer_auth']['usergroup_ids'], '?:shippings.usergroup_ids', true) . ")";
     }
 }

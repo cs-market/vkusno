@@ -1,11 +1,11 @@
 <?php
 
 use Tygh\Registry;
-use Tygh\Bootstrap;
 use Tygh\Storage;
 use Tygh\Enum\YesNo;
+use Tygh\Enum\NotificationSeverity;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 fn_trusted_vars (
     'ticket_data'
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             $master_pattern = '/'.implode("|",$patterns).'/i';
             if (preg_match($master_pattern, $message) ) {
-                fn_set_notification('E', __('error'), __('incorrect_filling_message'));
+                fn_set_notification(NotificationSeverity::ERROR, __('error'), __('incorrect_filling_message'));
                 fn_save_post_data('ticket_data');
                 return array(CONTROLLER_STATUS_OK);
             }
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!empty($ticket_data['ticket_id'])) {
             $message_id = fn_update_message($ticket_data);
             if ($message_id) {
-                fn_set_notification('N', __('notice'), __('message_sent_successfully'));
+                fn_set_notification(NotificationSeverity::NOTICE, __('notice'), __('message_sent_successfully'));
             }
             $ticket_id = $ticket_data['ticket_id'];
             $suffix = ".view?ticket_id=$ticket_id";
@@ -136,18 +136,18 @@ if ($mode == 'manage') {
     list($message) = fn_get_messages($params);
     Tygh::$app['view']->assign('message', array_shift($message));
 } elseif ($mode == 'move_message') {
-        $params = $_REQUEST;
+    $params = $_REQUEST;
 
-        list($messages, ) = fn_get_messages(array('message_id' => $params['message_id']));
-        $message = array_shift($messages);
+    list($messages, ) = fn_get_messages(array('message_id' => $params['message_id']));
+    $message = array_shift($messages);
 
-        if (isset($message['files'])) foreach ($message['files'] as $file) {
-            list($filesize, $filename) = Storage::instance('helpdesk_files')->put($params['ticket_id'] . '/' . $message['message_id'] . '/' . $file['filename'], array(
-                'file' => Storage::instance('helpdesk_files')->getAbsolutePath($message['ticket_id'] . '/' . $params['message_id'] . '/' . $file['filename'])
-            ));
-        }
+    if (isset($message['files'])) foreach ($message['files'] as $file) {
+        list($filesize, $filename) = Storage::instance('helpdesk_files')->put($params['ticket_id'] . '/' . $message['message_id'] . '/' . $file['filename'], array(
+            'file' => Storage::instance('helpdesk_files')->getAbsolutePath($message['ticket_id'] . '/' . $params['message_id'] . '/' . $file['filename'])
+        ));
+    }
 
-        db_query('UPDATE ?:helpdesk_messages SET `ticket_id` = ?i WHERE message_id = ?i', $params['ticket_id'], $params['message_id']);
+    db_query('UPDATE ?:helpdesk_messages SET `ticket_id` = ?i WHERE message_id = ?i', $params['ticket_id'], $params['message_id']);
     return array(CONTROLLER_STATUS_REDIRECT, "tickets.view&amp;ticket_id=".$params['ticket_id']);
 } elseif ($mode == 'delete') {
     if (isset($_REQUEST['spam'])) {

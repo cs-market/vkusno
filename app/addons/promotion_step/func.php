@@ -4,7 +4,7 @@ use Tygh\Enum\ProductTracking;
 use Tygh\Registry;
 use Tygh\Enum\OutOfStockActions;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_promotion_step_check_amount_in_stock_before_check($product_id, $amount, $product_options, $cart_id, $is_edp, $original_amount, $cart, $update_id, &$product, $current_amount){
     foreach ($cart['products'] as $key => $products) {
@@ -46,7 +46,7 @@ function fn_promotion_step_get_products_amount($promotion_id, $cart, $cart_produ
                             $amount += $v['amount'];
                         } else {
                             $items_in_package = $v['items_in_package'] ?? $v['qty_step'];
-                            $amount += floor($v['amount']/$items_in_package);
+                            $amount += floor($v['amount']/$items_in_package*100)/100;
                         }
                     }
                 }
@@ -67,7 +67,7 @@ function fn_promotion_step_get_products_amount($promotion_id, $cart, $cart_produ
                         $amount += $v['amount'];
                     } else {
                         $items_in_package = $v['items_in_package'] ?? $v['qty_step'];
-                        $amount += floor($v['amount']/$items_in_package);
+                        $amount += floor($v['amount']/$items_in_package*100)/100;
                     }
                 }
             }
@@ -82,6 +82,13 @@ function fn_promotion_step_unconditional_true() {
 }
 
 function fn_promotion_step_apply_cart_rule($bonus, &$cart, &$auth, &$cart_products) {
+    // Clean bonuses
+    if (!isset($cart['promotions'][$bonus['promotion_id']]['bonuses'])) {
+        $cart['promotions'][$bonus['promotion_id']]['bonuses'] = array();
+    }
+    $bonus_id = count($cart['promotions'][$bonus['promotion_id']]['bonuses']);
+    $cart['promotions'][$bonus['promotion_id']]['bonuses'][$bonus_id] = $bonus;
+
     if ($bonus['bonus'] == 'promotion_step_free_products') {
         $promotion =  fn_get_promotion_data($bonus['promotion_id']);
 
@@ -138,7 +145,7 @@ function fn_promotion_step_apply_cart_rule($bonus, &$cart, &$auth, &$cart_produc
                         if ($step) {
                             $product_data = array (
                                 $p_data['product_id'] => array (
-                                    'amount' => $step,
+                                    'amount' => $p_data['amount']*$step,
                                     'product_id' => $p_data['product_id'],
                                     'extra' => array (
                                         'bonus' => 'apply_bonus',

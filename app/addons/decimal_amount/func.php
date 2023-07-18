@@ -15,7 +15,7 @@ use Tygh\Enum\ProductTracking;
 use Tygh\Enum\OutOfStockActions;
 use Tygh\Registry;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_decimal_amount_update_product_pre(&$product_data, $product_id, $lang_code, $can_update) {
     if (!empty($product_data['min_qty'])) {
@@ -131,6 +131,7 @@ function fn_decimal_amount_check_amount_in_stock_before_check($product_id, &$amo
 function fn_decimal_amount_post_check_amount_in_stock($product_id, &$amount, $product_options, $cart_id, $is_edp, $original_amount, &$cart) {
     $product = $cart['amount_product_data'][$cart_id];
     unset($cart['amount_product_data'][$cart_id]);
+    if (defined('ORDER_MANAGEMENT')) $product['qty_step'] = 0;
 
     $amount = $cart['amount_backup'][$cart_id];
     unset($cart['amount_backup'][$cart_id]);

@@ -16,7 +16,7 @@ use Tygh\Enum\ProductFeatures;
 use Tygh\Settings;
 use Tygh\Registry;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_get_stickers($params, $lang_code = DESCR_SL) {
     static $cache = array();
@@ -132,13 +132,19 @@ function fn_execute_data_replacement(&$stickers, &$params) {
                     $piece = &$params['product'];
                     $parts = explode('.', $content);
                     foreach ($parts as $i => $part) {
-                        if (!is_array($piece) || !array_key_exists($part, $piece) || is_array($piece[$part]) || empty(strip_tags($piece[$part]))) {
+                        if (!is_array($piece) || !array_key_exists($part, $piece)) {
                             unset($stickers[$sticker_id]);
                             continue 2;
                         }
 
                         $piece = & $piece[$part];
                     }
+
+                    if (is_array($piece) || empty(strip_tags($piece))) {
+                        unset($stickers[$sticker_id]);
+                        continue;
+                    }
+
                     $replace['['.$content.']'] = trim(strip_tags($piece));
                     if (is_numeric($replace['['.$content.']'])) $replace['['.$content.']'] += 0;
                 }
@@ -545,14 +551,14 @@ function fn_product_sticker_render_styles($properties) {
                     if (isset($schema[$name]['prefix'])) {
                         if (strpos($val, '#prefix') !== false) {
                             $val = str_replace('#prefix', $schema[$name]['prefix'], $val);
-                        } else {
+                        } elseif (strpos($val, $schema[$name]['prefix']) === false) {
                             $val = $schema[$name]['prefix'] . $val;
                         }
                     }
                     if (isset($schema[$name]['suffix'])) {
                         if (strpos($val, '#suffix') !== false) {
                             $val = str_replace('#suffix', $schema[$name]['suffix'], $val);
-                        } else {
+                        } elseif (strpos($val, $schema[$name]['suffix']) === false) {
                             $val .= $schema[$name]['suffix'];
                         }
                     }

@@ -1,8 +1,9 @@
 <?php
 
 use Tygh\Registry;
+use Tygh\Enum\YesNo;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 if (AREA == 'C' && empty($auth['user_id'])) {
     fn_redirect('auth.login_form');
@@ -27,6 +28,21 @@ if ($mode == 'view') {
                 'get_discounts' => true,
                 'get_features' => false
             ));
+
+            // emulate discount
+            if (YesNo::toBool($promotion_data['view_separate'])) {
+                $bonuses = array_column($promotion_data['bonuses'], 'bonus');
+                if (!array_intersect(['free_products', 'promotion_step_free_products', 'promotion_step_give_condition_products'], $bonuses)) {
+                    $backup_amount = [];
+                    foreach ($products as $key => &$product) {
+                        $backup_amount[$key]['amount'] = $product['amount'];
+                        $product['amount'] = 9999;
+                    }
+
+                    fn_promotion_apply_bonuses($promotion_data, $tmp, Tygh::$app['session']['auth'], $products);
+                    $products = fn_array_merge($products, $backup_amount);
+                }
+            }
 
             Tygh::$app['view']->assign('products', $products);
             Tygh::$app['view']->assign('search', $search);

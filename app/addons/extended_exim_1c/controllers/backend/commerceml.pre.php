@@ -16,7 +16,7 @@ use Tygh\Commerceml\ExRusEximCommerceml;
 use Tygh\Commerceml\Logs;
 use Tygh\Registry;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 $path_file = 'exim/1C_' . date('dmY') . '/';
 $path = fn_get_files_dir_path() . $path_file;
@@ -119,6 +119,13 @@ if ($mode == 'sync') {
             $exim_commerceml->importDataOffersFile($xml, $service_exchange, $lang_code, $manual);
         } else {
             fn_echo("success\n");
+        }
+    }
+    if ($action == 'export_orders') {
+        if ($s_commerceml['exim_1c_all_product_order'] == 'Y') {
+            $exim_commerceml->exportAllProductsToOrders($lang_code);
+        } else {
+            $exim_commerceml->exportDataOrders($lang_code);
         }
     }
     fn_print_die('done');

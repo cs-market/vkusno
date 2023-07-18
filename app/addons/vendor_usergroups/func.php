@@ -3,7 +3,7 @@
 use Tygh\Registry;
 use Tygh\Models\Vendor;
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 function fn_vendor_usergroups_get_usergroups($params, $lang_code, $field_list, $join, &$condition, $group_by, $order_by, $limit) {
     if (!isset($params['usergroup_id']))
@@ -46,6 +46,19 @@ function fn_vendor_usergroups_get_default_usergroups(&$default_usergroups, $lang
     }
 }
 
+function fn_vendor_usergroups_update_product_pre(&$product_data, $product_id, $lang_code, $can_update) {
+    if ($cid = (isset($product_data['company_id'])) ? $product_data['company_id'] : db_get_field('SELECT company_id FROM ?:products WHERE product_id = ?i', $product_id)) {
+        $company = Vendor::model()->find($cid);
+        if (!empty($company) && !empty($company->usergroups)) {
+            if (!$product_id && !$product_data['usergroup_ids']) {
+                $product_data['usergroup_ids'] = $company->usergroups;
+            } elseif (isset($product_data['usergroup_ids'])) {
+                $product_data['usergroup_ids'] = array_intersect($product_data['usergroup_ids'], $company->usergroups);
+            }
+        }
+    }
+}
+
 function fn_vendor_usergroups_update_category_pre(&$category_data, $category_id, $lang_code) {
     if (isset($_REQUEST['preset_id']) && !$category_id) {
         list($presets) = fn_get_import_presets(array(
@@ -64,5 +77,27 @@ function fn_vendor_usergroups_update_category_pre(&$category_data, $category_id,
 function fn_vendor_usergroups_update_category_post($category_data, $category_id, $lang_code) {
     if (!empty($category_data['add_category_to_vendor_plan'])) {
         db_query("UPDATE ?:vendor_plans SET categories = ?p  WHERE plan_id = ?i", fn_add_to_set('categories', $category_id), $category_data['add_category_to_vendor_plan']);
+    }
+}
+
+function fn_vendor_usergroups_vendor_plan_before_save(&$_this, $result) {
+    if (version_compare(PRODUCT_VERSION, '4.13.1', '<')) {
+        if (empty($_this->usergroups)) {
+            $_this->usergroup_ids = [];
+        } elseif (is_array($_this->usergroups)) {
+            $_this->usergroup_ids = $_this->usergroups;
+            $_this->usergroups = implode(',', $_this->usergroups);
+        } elseif (is_string($_this->usergroups)) {
+            $_this->usergroup_ids = array_map('intval', explode(',', $_this->usergroups));
+        }
+    }
+}
+
+function fn_vendor_usergroups_category_promotion_get_products_before_select(&$params) {
+    if ($usergroup_ids = db_get_field('SELECT usergroup_ids FROM ?:categories WHERE category_id = ?i', $params['cid'])) {
+        $ug_condition = fn_find_array_in_set(explode(',', $usergroup_ids), 'usergroups', true);
+        if ($company_id = db_get_field("SELECT company_id FROM ?:companies AS c LEFT JOIN ?:vendor_plans AS vc ON c.plan_id = vc.plan_id WHERE $ug_condition")) {
+            $params['company_id'] = $company_id;
+        }
     }
 }

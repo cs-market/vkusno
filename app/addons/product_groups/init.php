@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('BOOTSTRAP')) { die('Access denied'); }
+defined('BOOTSTRAP') or die('Access denied');
 
 fn_register_hooks(
     'calculate_cart_items',
@@ -13,4 +13,5 @@ fn_register_hooks(
     'get_product_fields',
     'pre_get_orders',
     'get_products',
+    'exim1c_order_xml_pre',
 );

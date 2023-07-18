@@ -1,20 +1,40 @@
 <?php
 
+use Tygh\Registry;
+
 defined('BOOTSTRAP') or die('Access denied');
 
 function fn_maintenance_exim_set_usergroups($user_id, $data, $cleanup = true) {
+
+    $service_usergroups = Registry::get('addons.maintenance.service_usergroups');
+    if ($service_usergroups) {
+        $existed_service_usergroups = db_get_array("SELECT usergroup_id, status FROM ?:usergroup_links WHERE user_id = ?i AND usergroup_id IN (?a)", $user_id, array_keys($service_usergroups));
+    }
+
     if ($cleanup) db_query("DELETE FROM ?:usergroup_links WHERE user_id = ?i", $user_id);
+
+    $usergroups = [];
     if (!empty($data)) {
         $usergroups = fn_maintenance_get_usergroup_ids($data, false);
-        foreach ($usergroups as $ug_id => $status) {
-            $_data = array(
-                'user_id' => $user_id,
-                'usergroup_id' => $ug_id,
-                'status' => $status
-            );
-            db_query('REPLACE INTO ?:usergroup_links ?e', $_data);
-        }
     }
+
+    if (!empty($existed_service_usergroups)) {
+        $service_usergroups_formated = array_column($existed_service_usergroups, 'status', 'usergroup_id');
+        $usergroups = fn_array_merge(
+            $usergroups,
+            $service_usergroups_formated
+        );
+    }
+
+    $_data = [];
+    foreach ($usergroups as $ug_id => $status) {
+        $_data[] = array(
+            'user_id' => $user_id,
+            'usergroup_id' => $ug_id,
+            'status' => $status
+        );
+    }
+    db_query('REPLACE INTO ?:usergroup_links ?m', $_data);
 
     return true;
 }
@@ -37,14 +57,6 @@ function fn_exim_check_usergroup($row, &$processed_data, &$skip_record) {
         $skip_record = true;
         $processed_data['S']++;
     }
-}
-
-function fn_maintenance_exim_import_price($price, $decimals_separator = false) {
-    if (is_string($price)) {
-        $price = str_replace([' ', ','], ['', '.'], $price);
-    }
-
-    return (float) $price;
 }
 
 function fn_exim_set_add_product_usergroups($product_id, $data) {
