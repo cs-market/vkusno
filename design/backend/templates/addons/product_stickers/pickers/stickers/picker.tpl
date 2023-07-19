@@ -1,5 +1,5 @@
 {assign var="data_id" value=$data_id|default:"stickers_list"}
-{if !$rnd}{math equation="rand()" assign="rnd"}{/if}
+{$rnd = rand()}
 {assign var="data_id" value="`$data_id`_`$rnd`"}
 {assign var="view_mode" value=$view_mode|default:"mixed"}
 {assign var="start_pos" value=$start_pos|default:0}
