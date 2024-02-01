@@ -1,0 +1,481 @@
+
+
+@media only screen and (max-width : 1199px) {}
+@media only screen and (max-width : 979px) {}
+@media only screen and (max-width : 767px) {}
+@media only screen and (max-width : 479px) {}
+
+
+/* ==========================================================================
+Elements: styles
+========================================================================== */
+
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = s) and (@rev = n) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: @wnw;
+    justify-content: flex-start;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = s) and (@rev = y) {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: @wnw;
+    justify-content: flex-start;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = c) and (@rev = n) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: @wnw;
+    justify-content: center;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = c) and (@rev = y) {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: @wnw;
+    justify-content: center;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = b) and (@rev = n) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: @wnw;
+    justify-content: space-between;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = b) and (@rev = y) {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: @wnw;
+    justify-content: space-between;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = se) and (@rev = n) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: @wnw;
+    justify-content: space-evenly;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = se) and (@rev = y) {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: @wnw;
+    justify-content: space-evenly;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = e) and (@rev = n) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: @wnw;
+    justify-content: flex-end;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = r) and (@position = e) and (@rev = y) {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: @wnw;
+    justify-content: flex-end;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = c) and (@position = s) and (@rev = n) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: @wnw;
+    justify-content: flex-start;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = c) and (@position = s) and (@rev = y) {
+    display: flex;
+    flex-direction: column-reverse;
+    flex-wrap: @wnw;
+    justify-content: flex-start;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = c) and (@position = b) and (@rev = n) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: @wnw;
+    justify-content: space-between;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = c) and (@position = b) and (@rev = y) {
+    display: flex;
+    flex-direction: column-reverse;
+    flex-wrap: @wnw;
+    justify-content: space-between;
+}
+
+.icon (@val) when (@val = 8) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size - 8;
+    line-height: @body_font_size - 8;
+    width: @body_font_size - 8;
+    height: @body_font_size - 8;
+}
+
+.icon (@val) when (@val = 16) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size;
+    line-height: @body_font_size;
+    width: @body_font_size;
+    height: @body_font_size;
+}
+
+.icon (@val) when (@val = 18) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size + 2;
+    line-height: @body_font_size + 2;
+    width: @body_font_size + 2;
+    height: @body_font_size + 2;
+}
+
+.icon (@val) when (@val = 20) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size + 4;
+    line-height: @body_font_size + 4;
+    width: @body_font_size + 4;
+    height: @body_font_size + 4;
+}
+
+.icon (@val) when (@val = 22) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size + 6;
+    line-height: @body_font_size + 6;
+    width: @body_font_size + 6;
+    height: @body_font_size + 6;
+}
+
+.icon (@val) when (@val = 24) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size + 8;
+    line-height: @body_font_size + 8;
+    width: @body_font_size + 8;
+    height: @body_font_size + 8;
+}
+
+
+.img (@val) {
+    min-width: @val;
+    min-height: @val;
+    max-height: @val;
+    max-width: @val;
+}
+
+.btn_primary() {
+    border-radius: @border_radius_l;
+    background: @primary_button;
+    padding: 21px 42px;
+    text-align: center;
+    height: max-content;
+    border: 0;
+
+    @media only screen and (max-width: 767px) {
+        padding: 3px 24px;
+    }
+
+    &:hover {
+        background: @primary_button_hover;
+        box-shadow: @primary_button_shadow;
+        transition: @transition;
+    }
+
+    &, * {
+        color: @primary_button_color;
+        display: block;
+        transition: @transition;
+        //.p(18,700);
+        text-transform: none;
+        font-family: @buttons_font;
+        font-size: @buttons_font_size;
+        font-style: @buttons_font_style;
+        font-weight: @buttons_font_weight;
+        line-height: @buttons_font_size + 4;
+
+        @media only screen and (max-width: 767px) {
+            font-size: @buttons_font_size - 4;
+            line-height: @buttons_font_size;
+        }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.hover_link() {
+    transition: @transition;
+
+    &:hover, &:focus {
+        color: @primary_button;
+        transition: @transition;
+    }
+}
+
+.btn_secondary() {
+    border-radius: @border_radius_l;
+    background: @secondary_button;
+    padding: 21px 42px;
+    text-align: center;
+    height: max-content;
+    border: 0;
+
+    @media only screen and (max-width: 767px) {
+        padding: 3px 24px;
+    }
+
+    &:hover {
+        background: @secondary_button_hover;
+        box-shadow: @secondary_button_shadow;
+        transition: @transition;
+    }
+
+    &, * {
+        color: @secondary_button_color;
+        //.p(18,700);
+        display: block;
+        transition: @transition;
+        text-transform: none;
+        font-family: @buttons_font;
+        font-size: @buttons_font_size;
+        font-style: @buttons_font_style;
+        font-weight: @buttons_font_weight;
+        line-height: @buttons_font_size + 4;
+
+        @media only screen and (max-width: 767px) {
+            font-size: @buttons_font_size - 4;
+            line-height: @buttons_font_size;
+        }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.btn_tertiary() {
+    border-radius: @border_radius_l;
+    background: @tertiary_button;
+    padding: 12px 20px;
+    text-align: center;
+    height: max-content;
+    border: 0;
+
+    &:hover {
+        box-shadow: @tertiary_button_hover_shadow;
+        transition: @transition;
+    }
+
+    &, * {
+        color: @tertiary_button_color;
+        //.p(18,700);
+        display: block;
+        transition: @transition;
+        text-transform: none;
+        font-family: @buttons_font;
+        font-size: @buttons_font_size;
+        font-style: @buttons_font_style;
+        font-weight: @buttons_font_weight;
+        line-height: @buttons_font_size + 4;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.h_small() {
+    color: @font;
+    font-family: @headings_font;
+    font-size: @headings_font_size - 24; //32;
+    font-style: @headings_font_style;
+    font-weight: @headings_font_weight;
+    line-height: normal;
+
+    @media only screen and (max-width : 768px) {
+        font-size: @headings_font_size - 36; //20px
+    }
+}
+
+.h_middle() {
+    color: @font;
+    font-family: @headings_font;
+    font-size: @headings_font_size - 20; //36;
+    font-style: @headings_font_style;
+    font-weight: @headings_font_weight;
+    line-height: normal;
+
+    @media only screen and (max-width : 768px) {
+        font-size: @headings_font_size - 36; //20px
+    }
+}
+
+.h_hard() {
+    font-family: @headings_font;
+    font-size: @headings_font_size; //56
+    font-style: @headings_font_style;
+    font-weight: @headings_font_weight;
+    line-height: normal;
+
+    @media only screen and (max-width : 768px) {
+        font-size: @headings_font_size - 28; //28
+    }
+}
+
+.p (@val, @weight)  when (@val = 10) {
+    font-family: @body_font;
+    font-size: @body_font_size - 6;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size - 2;
+}
+
+.p (@val, @weight)  when (@val = 12) {
+    font-family: @body_font;
+    font-size: @body_font_size - 4;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size;
+}
+
+.p (@val, @weight)  when (@val = 13) {
+    font-family: @body_font;
+    font-size: @body_font_size - 3;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 1;
+}
+
+.p (@val, @weight)  when (@val = 14) {
+    font-family: @body_font;
+    font-size: @body_font_size - 2;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 2;
+}
+
+.p (@val, @weight)  when (@val = 15) {
+    font-family: @body_font;
+    font-size: @body_font_size - 1;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 3;
+}
+
+.p (@val, @weight)  when (@val = 16) {
+    font-family: @body_font;
+    font-size: @body_font_size;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 4;
+}
+
+.p (@val, @weight)  when (@val = 17) {
+    font-family: @body_font;
+    font-size: @body_font_size + 1;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 5;
+}
+
+.p (@val, @weight)  when (@val = 18) {
+    font-family: @body_font;
+    font-size: @body_font_size + 2;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 6;
+}
+
+.p (@val, @weight)  when (@val = 19) {
+    font-family: @body_font;
+    font-size: @body_font_size + 3;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 7;
+}
+
+.p (@val, @weight)  when (@val = 20) {
+    font-family: @body_font;
+    font-size: @body_font_size + 4;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 8;
+}
+
+.p (@val, @weight)  when (@val = 22) {
+    font-family: @body_font;
+    font-size: @body_font_size + 6;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 10;
+}
+
+.p (@val, @weight)  when (@val = 24) {
+    font-family: @body_font;
+    font-size: @body_font_size + 8;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 12;
+}
+
+
+
+.input() {
+    color: @top_panel_links;
+    font-family: @body_font;
+    font-size: 15px;
+    font-style: @body_font_style;
+    font-weight: @body_font_weight;
+    line-height: normal;
+    border-radius: @border_radius;
+    background: @tertiary_button;
+    height: 46px;
+    padding: 14px;
+    border: 0;
+
+    &:hover, &:focus {
+        box-shadow: none;
+    }
+}
+
+.checkbox() {
+    input[type="checkbox"] {
+        border: 0;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        box-shadow: none;
+        margin: -4px 10px 0 0;
+
+        &:before {
+            content: @sl-checkbox;
+            font-family: '@{icomoon-font-family}'!important;
+            font-size: 16px;
+            color: @top_panel_links;
+        }
+    }
+
+    input[type="checkbox"]:checked {
+        background: transparent;
+        position: relative;
+        &:before {
+            position: absolute;
+            content: @sl-uniE907;
+            color: rgb(255, 255, 255);
+        }
+
+        &:after {
+            content: @sl-uniE906;
+            font-family: '@{icomoon-font-family}'!important;
+            color: rgb(250, 131, 7);
+            font-size: 16px;
+        }
+    }
+}

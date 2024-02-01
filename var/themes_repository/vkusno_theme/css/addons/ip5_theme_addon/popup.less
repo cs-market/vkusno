@@ -1,0 +1,91 @@
+
+
+@media only screen and (max-width : 1199px) {}
+@media only screen and (max-width : 979px) {}
+@media only screen and (max-width : 767px) {}
+@media only screen and (max-width : 479px) {}
+
+
+/* ==========================================================================
+Elements: styles
+========================================================================== */
+
+.ui-widget-content.ui-dialog {
+    border-radius: 20px;
+
+    .ui-dialog-titlebar {
+        padding: 20px 36px 0;
+        border: 0;
+        .flex(r,b,n,nowrap);
+
+        &:after, &:before {
+            display: none;
+        }
+
+        .ui-dialog-title {
+            .p(24,700);
+            color: @font;
+
+            @media only screen and (max-width : 767px) {
+                .p(20,700);
+            }
+        }
+
+        .ui-dialog-titlebar-close {
+            position: initial;
+            margin: 0;
+            font-size: 0;
+
+            .ui-icon-closethick {
+                color: @font_accent;
+                margin: 0;
+                position: initial;
+                opacity: 1;
+
+                &:before {
+                    content: @vk-close;
+                    .icon(16);
+
+                }
+            }
+        }
+    }
+    .ui-dialog-content {
+        .object-container {
+            padding: 20px 36px;
+
+            .ty-control-group {
+                label {
+                    padding: 0;
+                    margin-bottom: 10px;
+                    .p(16,400);
+                }
+
+                input {
+                    padding: 25px 22px;
+                    border-radius: @border_radius_s;
+                    border: 1px solid @old_price;
+                    color: @old_price;
+                   .p(16,400);
+                    height: 65px;
+                    transition: @transition;
+
+                    &:hover, &:focus {
+                        color: @font;
+                        transition: @transition;
+                    }
+                }
+            }
+        }
+    }
+
+    .buttons-container {
+        margin: 0px -36px;
+        padding: 0 36px 20px;
+        border: 0;
+
+        .ty-btn__primary {
+            .btn_primary();
+        }
+    }
+}

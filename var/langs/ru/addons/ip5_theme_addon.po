@@ -1,0 +1,21 @@
+msgid ""
+msgstr "Project-Id-Version: tygh"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
+
+msgctxt "Addons::name::ip5_theme_addon"
+msgid "IP5 Agency — Дополнения к теме"
+msgstr "IP5 Agency — Дополнения к теме"
+
+msgctxt "Addons::description::ip5_theme_addon"
+msgid "A dummy add-on for easier hook design editing"
+msgstr "Специальный модуль для внесения собственных изменений в платформу"
+
+msgctxt "Languages::footer_company"
+msgid "footer_company"
+msgstr "УНИВИТА"
+
+msgctxt "Languages::sale_all_pages"
+msgid "sale_all_pages"
+msgstr "Все"

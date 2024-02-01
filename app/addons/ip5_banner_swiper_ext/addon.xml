@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+    <addon scheme="3.0" edition_type="ROOT,ULT:VENDOR">
+    <id>ip5_banner_swiper_ext</id>
+    <version>2022</version>
+    <priority>100500</priority>
+    <position>0</position>
+    <status>active</status>
+    <default_language>ru</default_language>
+    <auto_install>MULTIVENDOR,ULTIMATE</auto_install>
+
+    <supplier>IP5 Agency</supplier>
+    <supplier_link>https://ip5.agency</supplier_link>
+    <authors>
+        <author>
+            <name>IP5 Agency</name>
+            <email>mail@ip5.agency</email>
+            <url>https://ip5.agency</url>
+            <phone>+7(978) 285-55-58</phone>
+        </author>
+    </authors>
+
+    <compatibility>
+        <dependencies>banners</dependencies>
+        <core_version><min>4.10.1</min></core_version>
+        <core_edition>ULTIMATE,MULTIVENDOR</core_edition>
+    </compatibility>
+
+
+    <queries>
+        <item>
+            CREATE TABLE IF NOT EXISTS `?:ip5_banner_images` (
+            `banner_image_id` mediumint(8) unsigned NOT NULL auto_increment,
+            `banner_id` mediumint(8) unsigned NOT NULL default 0,
+            `type` varchar(30) NOT NULL default '',
+            PRIMARY KEY  (`banner_image_id`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        </item>
+
+        <item>DROP TABLE IF EXISTS ?:ip5_video_settings;</item>
+        <item>DROP TABLE IF EXISTS ?:ip5_graphic_settings;</item>
+    </queries>
+
+
+    <functions>
+        <item for="install">fn_ip5_banner_swiper_ext_install</item>
+    </functions>
+
+</addon>

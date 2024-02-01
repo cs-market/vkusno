@@ -1,0 +1,40 @@
+{
+	"title":"Vkusno theme",
+	"description":"Theme lets your store shine on all screen sizes, from phones to tablets to PCs, by adapting page layout on the fly. The theme has minimalistic look & feel sweetened with great typography and driven by the latest web design trends.",
+	"parent_theme":"responsive",
+	"logo":"media\/images\/logo.png",
+	"mail":"media\/images\/logo.png",
+	"favicon":"media\/images\/favicon.png",
+	"developer": "Ip5 agency",
+	"settings_overrides": {
+		"General": {
+			"inventory_tracking": true,
+			"enable_compare_products": false
+		},
+		"Appearance": {
+			"columns_in_products_list": 4,
+			"products_per_page": "45",
+			"elements_per_page": "10",
+			"quantity_changer": true,
+			"top_pagination": false,
+			"thumbnails_gallery": false,
+			"default_product_details_view": "ip5_default_template",
+			"product_details_in_tab": true,
+			"enable_quick_view": false
+		},
+		"Thumbnails": {
+			"product_lists_thumbnail_width": 270,
+			"product_lists_thumbnail_height": 235,
+			"product_details_thumbnail_width": 624,
+			"product_details_thumbnail_height": 480,
+			"product_cart_thumbnail_width": 144,
+			"product_cart_thumbnail_height": 109,
+			"category_lists_thumbnail_width": 270,
+			"category_lists_thumbnail_height": 235,
+			"category_details_thumbnail_width": 120,
+			"category_details_thumbnail_height": "",
+			"category_detailed_image_width": 270,
+			"category_detailed_image_height": 380
+		}
+	}
+}

@@ -1,0 +1,286 @@
+
+
+@media only screen and (max-width : 1199px) {}
+@media only screen and (max-width : 979px) {}
+@media only screen and (max-width : 767px) {}
+@media only screen and (max-width : 479px) {}
+
+
+/* ==========================================================================
+Elements: styles
+========================================================================== */
+
+.tygh-footer {
+    background: @content_bg;
+
+    .ty-footer-grid {
+        border-radius: 40px 40px 0 0;
+
+        & > .row-fluid {
+            max-width: 1400px;
+            min-width: 280px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: auto;
+
+            @media only screen and (max-width : 767px) {
+                padding: 0 14px;
+            }
+        }
+
+        .footer_top {
+            .flex(r,b,n,wrap);
+            align-items: center;
+            padding: 23px 0 60px;
+            gap: 20px;
+
+            @media only screen and (max-width : 767px) {
+                gap: 0;
+                padding: 14px 0 35px;
+            }
+
+            .ty-logo-container {
+                margin: 0;
+                margin-right: 7.07%;
+
+                @media only screen and (max-width : 767px) {
+                    width: 100%;
+                    margin-bottom: 10px;
+
+                    img {
+                        max-height: 96px;
+                    }
+                }
+            }
+
+            .ip5_contacts {
+                margin-right: 21.43%;
+
+                @media only screen and (max-width : 767px) {
+                    width: 100%;
+                }
+
+                .ip5_contacts_content {
+                    .flex(r,s,n,nowrap);
+                    gap: 20px;
+
+                    @media only screen and (max-width : 767px) {
+                        gap: 8px;
+
+                        img {
+                            .img(28px);
+                        }
+
+                        .ip5_contacts_item {
+                            &:first-child {
+                                max-width: 63%;
+                                min-width: max-content;
+                                width: 63%;
+                            }
+
+                            &:last-child {
+                                max-width: 34%;
+                                min-width: max-content;
+                                width: 34%;
+                            }
+                        }
+                    }
+
+                    a {
+                        .p(20,400);
+                        color: @footer_text;
+                        .hover_link();
+
+                        @media only screen and (max-width : 767px) {
+                            .p(12,400);
+                        }
+                    }
+                }
+            }
+
+            .ip5_pay {
+                @media only screen and (max-width : 767px) {
+                    width: 100%;
+                    margin-top: 8px;
+                }
+            }
+
+            .ip5_contacts_item, .ip5_pay_content {
+                .flex(r,c,n,nowrap);
+                gap: 20px;
+                padding: 0 28px;
+                height: 62px;
+                align-items: center;
+                border-radius: @border_radius;
+                border: 1px solid rgba(158, 155, 153, 0.29);
+                backdrop-filter: blur(12px);
+
+                @media only screen and (max-width : 767px) {
+                    height: 66px;
+                    padding: 0 16px;
+                    gap: 12px;
+                }
+            }
+        }
+
+        .footer_center {
+            .flex(r,s,n,wrap);
+            gap: 70px;
+
+            @media only screen and (max-width : 767px) {
+                gap: 31px;
+            }
+
+            .footer_catalog, .footer_about {
+                margin-right: auto;
+
+                h2 {
+                    .h_middle();
+                    color: @footer_text;
+                    //margin-bottom: 24px;
+                }
+
+                ul {
+                    margin-bottom: 0;
+                    display: grid;
+                    grid-column-gap: 70px;
+                    grid-row-gap: 17px;
+
+                    @media only screen and (max-width : 767px) {
+                        .flex(r,s,n,wrap);
+                        gap: 15px;
+                    }
+
+                    li {
+                        padding: 0;
+
+                        @media only screen and (max-width : 767px) {
+                            width: 100%;
+                        }
+
+                        a {
+                            .p(16,400);
+                            color: @footer_text;
+                            .hover_link();
+
+                            @media only screen and (max-width : 767px) {
+                                .p(14,400);
+                            }
+
+                        }
+                    }
+                }
+            }
+            .footer_catalog {
+                max-width: 451px;
+
+                @media only screen and (max-width : 767px) {
+                    max-width: 100%;
+                }
+
+                h2 {
+                    margin-bottom: 17px;
+                }
+                ul {
+                    grid-template-columns: auto auto;
+
+                    .icon_discount, .icon_new {
+                        margin-bottom: 25px;
+                        .flex(r,s,n,nowrap);
+                        gap: 8px;
+                        align-items: center;
+
+                        @media only screen and (max-width : 767px) {
+                            width: max-content;
+                            margin-bottom: 0;
+                        }
+
+                        &:before {
+                            display: block;
+                            .img(32px);
+                            content: "";
+                        }
+                    }
+
+                    .icon_discount {
+                        background: url("/images/sale.svg") no-repeat;
+                    }
+
+                    .icon_new {
+                        margin-left: -43px;
+                        background: url("/images/new.svg") no-repeat;
+
+                        @media only screen and (max-width : 767px) {
+                            margin-left: 14px;
+                        }
+                    }
+                }
+            }
+            .footer_about {
+                max-width: 517px;
+
+                @media only screen and (max-width : 767px) {
+                    max-width: 100%;
+                }
+
+                h2 {
+                    margin-bottom: 91px;
+                    @media only screen and (max-width : 767px) {
+                        margin-bottom: 11px;
+                    }
+                }
+
+                ul {
+                    grid-template-columns: auto auto auto;
+                }
+            }
+        }
+
+        .footer_bottom {
+            margin-top: 50px;
+            .flex(r,b,n,wrap);
+            margin-bottom: 23px;
+            gap: 54px;
+
+            @media only screen and (max-width : 767px) {
+                margin-top: 33px;
+                .flex(c,s,y,nowrap);
+                gap: 16px;
+            }
+
+            .bottom-copyright {
+                margin: 0;
+                padding: 0;
+                .p(16,400);
+                color: @footer_text;
+
+                @media only screen and (max-width : 767px) {
+                    .p(14,400);
+                }
+            }
+
+            .ip5_footer_info {
+                .ip5_footer_info_content {
+                    .flex(r,s,n,nowrap);
+                    gap: 54px;
+
+                    @media only screen and (max-width : 767px) {
+                        .flex(c,s,n,nowrap);
+                        gap: 15px;
+
+                    }
+
+                    a {
+                        .p(16,400);
+                        color: @footer_text;
+                        .hover_link();
+
+                        @media only screen and (max-width : 767px) {
+                            .p(14,400);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

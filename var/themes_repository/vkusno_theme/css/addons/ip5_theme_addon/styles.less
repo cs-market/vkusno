@@ -1,0 +1,58 @@
+
+
+@media only screen and (max-width : 1199px) {}
+@media only screen and (max-width : 979px) {}
+@media only screen and (max-width : 767px) {}
+@media only screen and (max-width : 479px) {}
+
+
+/* ==========================================================================
+Elements: styles
+========================================================================== */
+
+@import "mixins.less";
+@import "all_pages.less";
+@import "header.less";
+@import "footer.less";
+@import "homepage.less";
+@import "icons.less";
+@import "popup.less";
+
+.ip5_new_sticker {
+
+}
+
+.body-no-scroll {
+    overflow: hidden!important;
+}
+
+.ip5_bestsellers_sticker {
+    bottom: 13px;
+    right: 13px;
+    z-index: 1;
+
+    @media only screen and (max-width : 767px) {
+        right: 4px;
+        bottom: 3px;
+        z-index: 0;
+    }
+
+    span {
+        background: @primary_button!important;
+        border-radius: 70px!important;
+        color: @base;
+        text-transform: uppercase;
+        .p(14,700);
+        padding: 2px 11px!important;
+
+        @media only screen and (max-width : 767px) {
+            .p(10,700);
+            line-height: 11px;
+            padding: 0 4px !important;
+        }
+    }
+}
+
+.ip5_discount_sticker {
+
+}

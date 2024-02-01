@@ -1,0 +1,31 @@
+msgid ""
+msgstr "Project-Id-Version: ip5.agency"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
+"Last-Translator: ip5 <mail@ip5.agency>\n"
+"PO-Revision-Date: 2020-06-01 00:00-0400\n"
+
+msgctxt "Addons::name::ip5_section_size_building"
+msgid "IP5 section size building"
+msgstr "IP5 Agency — Построение ширины секции в макете"
+
+msgctxt "Addons::description::ip5_section_size_building"
+msgid "Module section sizebuilding description"
+msgstr "Модуль позволяет менять ширину секции на: [ обычная | расширенная | на всю ширину ]"
+
+msgctxt "Languages::full_width_grid"
+msgid "Full width grid"
+msgstr "Вся ширина секции"
+
+msgctxt "Languages::original"
+msgid "Section original"
+msgstr "Секция обычная"
+
+msgctxt "Languages::ext_section"
+msgid "Section extended"
+msgstr "Секция расширенная"
+
+msgctxt "Languages::full_ext_section"
+msgid "Section full extended"
+msgstr "Секция на всю ширину"

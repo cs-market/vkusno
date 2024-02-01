@@ -1,0 +1,469 @@
+msgid ""
+msgstr "Project-Id-Version: tygh"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: English\n"
+"Language: ru_RU\n"
+
+msgctxt "Addons::name::ip5_banner_swiper_ext"
+msgid "IP5 Agency — banner swiperext"
+msgstr "IP5 Agency — Расширенные swiper баннеры фото и видео"
+
+msgctxt "Addons::description::ip5_banner_swiper_ext"
+msgid "IP5: banner swiper ext"
+msgstr "Баннер с фоновым изображением и видео подгрузкой, управляемым заголовком, описанием и кнопкой мотивации"
+
+msgctxt "Languages::ip5_banner_swiper_ext"
+msgid "IP5: banner_swiper_ext"
+msgstr "IP5: Модуль расширенный тип баннера с фото и видео"
+
+msgctxt "Languages::ip5_banner_swiper_ext_menu_description"
+msgid "ip5_banner_swiper_ext_menu_description"
+msgstr "Баннер с фоновым изображением и видео подгрузкой, управляемым заголовком, описанием и кнопкой мотивации"
+
+msgctxt "Languages::full_width_grid"
+msgid "Full width grid"
+msgstr "Вся ширина секции"
+
+msgctxt "Languages::ext_section"
+msgid "Section extended"
+msgstr "Секция расширенная"
+
+msgctxt "Languages::full_ext_section"
+msgid "Section full extended"
+msgstr "Секция на всю ширину"
+
+msgctxt "Languages::ip5_banner_ext.type"
+msgid "ip5 banner extended type"
+msgstr "IP5: Расширенный графический баннер"
+
+msgctxt "Languages::ip5_video_ext.type"
+msgid "ip5 video extended type"
+msgstr "IP5: Расширенный баннер с фоновым видео"
+
+msgctxt "Languages::ip5_carousel_banner_ext"
+msgid "ip5 carousel banner ext"
+msgstr "IP5: Расширенный слайдер баннеров"
+
+msgctxt "Languages::ip5_banner_ext"
+msgid "ip5 video banner ext"
+msgstr "IP5: Расширенный баннер с фоновым видео"
+
+msgctxt "Languages::ip5_banner.params.main_settings"
+msgid "ip5_banner.params.main_settings"
+msgstr "Настройка блока"
+
+msgctxt "Languages::ip5_banner.params.title_settings"
+msgid "ip5_banner.params.title_settings"
+msgstr "Настройки заголовка"
+
+msgctxt "Languages::ip5_banner.params.description_settings"
+msgid "ip5_banner.params.description_settings"
+msgstr "Настройки описания"
+
+msgctxt "Languages::ip5_banner.params.image_settings"
+msgid "ip5_banner.params.image_settings"
+msgstr "Настройка видео и изображения"
+
+msgctxt "Languages::ip5_banner.params.motivation_settings"
+msgid "ip5_banner.params.motivation_settings"
+msgstr "Настройка кнопки мотивации"
+
+msgctxt "Languages::ip5_carousel_extended"
+msgid "ip5_carousel_extended"
+msgstr "IP5: Расширенный слайдер баннеров"
+
+msgctxt "Languages::ip5_extended"
+msgid "ip5_combined"
+msgstr "IP5: Расширенный баннер"
+
+msgctxt "Languages::ip5_banner.tabs.desktop"
+msgid "ip5_banner.tabs.desktop"
+msgstr "Общие (Desktop)"
+
+msgctxt "Languages::ip5_banner.tabs.tablet"
+msgid "ip5_banner.tabs.tablet"
+msgstr "Планшет (Tablet)"
+
+msgctxt "Languages::ip5_banner.tabs.mobile"
+msgid "ip5_banner.tabs.mobile"
+msgstr "Мобилка (Mobile)"
+
+msgctxt "Languages::ip5_banner.params.color_scheme"
+msgid "ip5_banner.params.color_scheme"
+msgstr "Цветовая схема"
+
+msgctxt "Languages::ip5_banner.params.color_scheme.tooltip"
+msgid "ip5_banner.params.color_scheme"
+msgstr "Указывает какого цвета будет <strong>Заголовок</strong> и <strong>Описание</strong> баннера. Для темного фона укажите <strong>Светлый</strong>, для светлого фона баннера - <strong>Темный</strong>"
+
+msgctxt "Languages::ip5_banner.params.content_align"
+msgid "ip5_banner.params.content_align"
+msgstr "Горизонтальное выравнивание"
+
+msgctxt "Languages::ip5_banner.params.content_align.tooltip"
+msgid "ip5_banner.params.content_align"
+msgstr "Расположение контента внутри баннера по горизонтали"
+
+msgctxt "Languages::ip5_banner.params.content_valign"
+msgid "ip5_banner.params.content_valign"
+msgstr "Вертикальное выравнивание"
+
+msgctxt "Languages::ip5_banner.params.content_valign.tooltip"
+msgid "ip5_banner.params.content_valign"
+msgstr "Расположение контента внутри баннера по вертикали"
+
+msgctxt "Languages::ip5_banner.params.padding"
+msgid "ip5_banner.params.padding"
+msgstr "Внутренний отступ, px"
+
+msgctxt "Languages::ip5_banner.params.padding.tooltip"
+msgid "ip5_banner.params.padding"
+msgstr "CSS <code>padding</code>. Отступы в пикселях внутри баннера. Полезно, чтобы стандартизировать отступы от границ баннера до контента"
+
+msgctxt "Languages::ip5_banner.params.content_width"
+msgid "ip5_banner.params.content_width"
+msgstr "Ширина контента"
+
+msgctxt "Languages::ip5_banner.params.content_width.tooltip"
+msgid "ip5_banner.params.content_width"
+msgstr "Ширина блока с контентом имеет по умолчанию ширину 50% баннера"
+
+msgctxt "Languages::ip5_banner.params.custom_class"
+msgid "ip5_banner.params.custom_class"
+msgstr "Дополнительный Class"
+
+msgctxt "Languages::ip5_banner.params.custom_class.tooltip"
+msgid "ip5_banner.params.custom_class.tooltip"
+msgstr "Дополнительный Class"
+
+msgctxt "Languages::ip5_banner.params.title_text"
+msgid "ip5_banner.params.title_text"
+msgstr "Заголовок баннера"
+
+msgctxt "Languages::ip5_banner.params.title_text.tooltip"
+msgid "ip5_banner.params.title_text"
+msgstr "Заголовок баннера"
+
+msgctxt "Languages::ip5_banner.params.title_tag"
+msgid "ip5_banner.params.title_tag"
+msgstr "Тег заголовка"
+
+msgctxt "Languages::ip5_banner.params.title_tag.tooltip"
+msgid "ip5_banner.params.title_tag"
+msgstr "Иногда для СЕО оптимизации необходимо указать тег заголовка (H1, H2, H3). По умолчанию заголовок расположен в теге DIV"
+
+msgctxt "Languages::ip5_banner.params.title_font_size"
+msgid "ip5_banner.params.title_font_size"
+msgstr "Размер заголовка, px"
+
+msgctxt "Languages::ip5_banner.params.title_font_size.tooltip"
+msgid "ip5_banner.params.title_font_size"
+msgstr "CSS <code>font-size</code>"
+
+msgctxt "Languages::ip5_banner.params.title_font_weight"
+msgid "ip5_banner.params.title_font_weight"
+msgstr "Начертание заголовка"
+
+msgctxt "Languages::ip5_banner.params.title_font_weight.tooltip"
+msgid "ip5_banner.params.title_font_weight"
+msgstr "CSS <code>font-weight</code>"
+
+msgctxt "Languages::ip5_banner.params.title_font_color"
+msgid "ip5_banner.params.title_font_color"
+msgstr "Цвет заголовка"
+
+msgctxt "Languages::ip5_banner.params.title_font_color.tooltip"
+msgid "ip5_banner.params.title_font_color"
+msgstr "CSS <code>color</code>"
+
+msgctxt "Languages::ip5_banner.params.description_text"
+msgid "ip5_banner.params.description_text"
+msgstr "Описание"
+
+msgctxt "Languages::ip5_banner.params.description_text.tooltip"
+msgid "ip5_banner.params.description_text"
+msgstr "Описание"
+
+msgctxt "Languages::ip5_banner.params.description_font_size"
+msgid "ip5_banner.params.description_font_size"
+msgstr "Размер шрифта описания, px:"
+
+msgctxt "Languages::ip5_banner.params.description_font_size.tooltip"
+msgid "ip5_banner.params.description_font_size"
+msgstr "CSS <code>font-size</code>"
+
+msgctxt "Languages::ip5_banner.params.description_font_color"
+msgid "ip5_banner.params.description_font_color"
+msgstr "Цвет шрифта"
+
+msgctxt "Languages::ip5_banner.params.description_font_color.tooltip"
+msgid "ip5_banner.params.description_font_color"
+msgstr "CSS <code>color</code>"
+
+msgctxt "Languages::ip5_banner.params.background_video_type"
+msgid "ip5_banner.params.background_video_type"
+msgstr "Тип фонового видео"
+
+msgctxt "Languages::ip5_banner.params.background_video_type.tooltip"
+msgid "ip5_banner.params.background_video_type"
+msgstr "Тип фонового видео"
+
+msgctxt "Languages::ip5_banner.params.background_video_webm"
+msgid "ip5_banner.params.background_video_webm"
+msgstr "Фоновое видео webm"
+
+msgctxt "Languages::ip5_banner.params.background_video_webm.tooltip"
+msgid "ip5_banner.params.background_video_webm"
+msgstr "Фоновое видео webm"
+
+msgctxt "Languages::ip5_banner.params.background_video_mp4"
+msgid "ip5_banner.params.background_video_mp4"
+msgstr "Фоновое видео mp4"
+
+msgctxt "Languages::ip5_banner.params.background_video_mp4.tooltip"
+msgid "ip5_banner.params.background_video_mp4"
+msgstr "Фоновое видео mp4"
+
+msgctxt "Languages::ip5_banner.params.image_main"
+msgid "ip5_banner.params.image_main"
+msgstr "Изображение"
+
+msgctxt "Languages::ip5_banner.params.image_position"
+msgid "ip5_banner.params.image_position"
+msgstr "Положение фото"
+
+msgctxt "Languages::ip5_banner.params.image_position.tooltip"
+msgid "ip5_banner.params.image_position tooltip"
+msgstr "Положение фото относительно текста. По умолчанию фото справа, текст слева."
+
+msgctxt "Languages::ip5_banner.params.image_position.variants.img_left"
+msgid "ip5_banner.params.image_position.variants.img_left"
+msgstr "Фото слева, текст справа"
+
+msgctxt "Languages::ip5_banner.params.image_position.variants.img_right"
+msgid "ip5_banner.params.image_position.variants.img_right"
+msgstr "Фото справа, текст слева"
+
+msgctxt "Languages::ip5_banner.params.image_bg"
+msgid "ip5_banner.params.image_bg"
+msgstr "Фоновое изображение"
+
+msgctxt "Languages::ip5_banner.params.image_scaling"
+msgid "ip5_banner.params.image_scaling"
+msgstr "Масштабирование фонового изображения"
+
+msgctxt "Languages::ip5_banner.params.image_scaling.tooltip"
+msgid "ip5_banner.params.image_scaling"
+msgstr "Масштабирование фонового изображения"
+
+msgctxt "Languages::ip5_banner.params.image_bg_color"
+msgid "ip5_banner.params.image_bg_color"
+msgstr "Цвет фона"
+
+msgctxt "Languages::ip5_banner.params.image_bg_color.tooltip"
+msgid "ip5_banner.params.image_bg_color"
+msgstr "Цвет фона"
+
+msgctxt "Languages::ip5_banner.params.motivation_text"
+msgid "ip5_banner.params.motivation_text"
+msgstr "Текст кнопки"
+
+msgctxt "Languages::ip5_banner.params.motivation_text.tooltip"
+msgid "ip5_banner.params.motivation_text"
+msgstr "Текст кнопки"
+
+msgctxt "Languages::ip5_banner.params.motivation_font_size"
+msgid "ip5_banner.params.motivation_font_size"
+msgstr "Размер шрифта кнопки, px"
+
+msgctxt "Languages::ip5_banner.params.motivation_font_size.tooltip"
+msgid "ip5_banner.params.motivation_font_size"
+msgstr "Размер шрифта кнопки, px"
+
+msgctxt "Languages::ip5_banner.params.motivation_font_color"
+msgid "ip5_banner.params.motivation_font_color"
+msgstr "Цвет шрифта"
+
+msgctxt "Languages::ip5_banner.params.motivation_font_color.tooltip"
+msgid "ip5_banner.params.motivation_font_color"
+msgstr "Цвет шрифта"
+
+msgctxt "Languages::ip5_banner.params.motivation_button_color"
+msgid "ip5_banner.params.motivation_button_color"
+msgstr "Цвет кнопки"
+
+msgctxt "Languages::ip5_banner.params.motivation_button_color.tooltip"
+msgid "ip5_banner.params.motivation_button_color"
+msgstr "Цвет кнопки"
+
+msgctxt "Languages::ip5_banner.params.motivation_open_new_window"
+msgid "ip5_banner.params.motivation_open_new_window"
+msgstr "Открывать ссылку в новом окне"
+
+msgctxt "Languages::ip5_banner.params.motivation_open_new_window.tooltip"
+msgid "ip5_banner.params.motivation_open_new_window"
+msgstr "Открывать ссылку в новом окне"
+
+msgctxt "Languages::ip5_banner.params.motivation_link"
+msgid "ip5_banner.params.motivation_link"
+msgstr "Адрес ссылки URL"
+
+msgctxt "Languages::ip5_banner.params.motivation_link.tooltip"
+msgid "ip5_banner.params.motivation_link"
+msgstr "Адрес ссылки URL"
+
+msgctxt "Languages::ip5_banner.params.color_scheme.variants.light"
+msgid "ip5_banner.params.color_scheme.variants.light"
+msgstr "Светлая"
+
+msgctxt "Languages::ip5_banner.params.color_scheme.variants.dark"
+msgid "ip5_banner.params.color_scheme.variants.dark"
+msgstr "Темная"
+
+msgctxt "Languages::ip5_banner.params.content_align.variants.left"
+msgid "ip5_banner.params.content_align.variants.left"
+msgstr "Слева"
+
+msgctxt "Languages::ip5_banner.params.content_align.variants.center"
+msgid "ip5_banner.params.content_align.variants.center"
+msgstr "По центру"
+
+msgctxt "Languages::ip5_banner.params.content_align.variants.right"
+msgid "ip5_banner.params.content_align.variants.right"
+msgstr "Справа"
+
+msgctxt "Languages::ip5_banner.params.content_valign.variants.top"
+msgid "ip5_banner.params.content_valign.variants.top"
+msgstr "Сверху"
+
+msgctxt "Languages::ip5_banner.params.content_valign.variants.middle"
+msgid "ip5_banner.params.content_valign.variants.middle"
+msgstr "По центру"
+
+msgctxt "Languages::ip5_banner.params.content_valign.variants.bottom"
+msgid "ip5_banner.params.content_valign.variants.bottom"
+msgstr "Снизу"
+
+msgctxt "Languages::ip5_banner.params.title_tag.variants.div"
+msgid "ip5_banner.params.title_tag.variants.div"
+msgstr "тег DIV"
+
+msgctxt "Languages::ip5_banner.params.title_tag.variants.h1"
+msgid "ip5_banner.params.title_tag.variants.h1"
+msgstr "тег H1"
+
+msgctxt "Languages::ip5_banner.params.title_tag.variants.h2"
+msgid "ip5_banner.params.title_tag.variants.h2"
+msgstr "тег H2"
+
+msgctxt "Languages::ip5_banner.params.title_tag.variants.h3"
+msgid "ip5_banner.params.title_tag.variants.h3"
+msgstr "тег H3"
+
+msgctxt "Languages::ip5_banner.params.title_font_weight.variants.normal"
+msgid "ip5_banner.params.title_font_weight.variants.normal"
+msgstr "Нормальный"
+
+msgctxt "Languages::ip5_banner.params.title_font_weight.variants.bold"
+msgid "ip5_banner.params.title_font_weight.variants.bold"
+msgstr "Жирный"
+
+msgctxt "Languages::ip5_banner.params.background_video_type.variants.html5"
+msgid "ip5_banner.params.background_video_type.variants.html5"
+msgstr "HTML5 Video"
+
+msgctxt "Languages::ip5_banner.params.background_video_type.variants.youtube"
+msgid "ip5_banner.params.background_video_type.variants.youtube"
+msgstr "YouTube"
+
+msgctxt "Languages::ip5_banner.params.background_video_type.variants.vimeo"
+msgid "ip5_banner.params.background_video_type.variants.vimeo"
+msgstr "Vimeo"
+
+msgctxt "Languages::ip5_banner.params.image_scaling.variants.cover"
+msgid "ip5_banner.params.image_scaling.variants.cover"
+msgstr "С сохранением пропорций, чтобы ширина или высота равнялась ширине или высоте блока"
+
+msgctxt "Languages::ip5_banner.params.image_scaling.variants.contain"
+msgid "ip5_banner.params.image_scaling.variants.contain"
+msgstr "С сохранением пропорций, чтобы картинка целиком поместилась внутрь блока"
+
+msgctxt "Languages::ip5_banner.options.min_height"
+msgid "ip5_banner.options.min_height"
+msgstr "Минимальная высота баннера, px"
+
+msgctxt "Languages::ttc_ip5_banner.options.min_height"
+msgid "ttc_ip5_banner.options.min_height"
+msgstr "Для мобильных устройств это минимальная высота, ниже которой баннер не будет опускаться"
+
+msgctxt "Languages::ip5_banner.options.arrows"
+msgid "ip5_banner.options.arrows"
+msgstr "Стрелки"
+
+msgctxt "Languages::ip5_banner.options.loop"
+msgid "ip5_banner.options.loop"
+msgstr "Бесконечная прокрутка"
+
+msgctxt "Languages::ip5_banner.options.autoplay"
+msgid "ip5_banner.options.autoplay"
+msgstr "Авто воспроизведение"
+
+msgctxt "Languages::ip5_banner.options.autoplaySpeed"
+msgid "ip5_banner.options.autoplaySpeed"
+msgstr "Задержка авто воспроизведения в миллисекундах"
+
+msgctxt "Languages::ttc_ip5_banner.options.autoplaySpeed"
+msgid "ttc_ip5_banner.options.autoplaySpeed"
+msgstr "Скорость авто воспроизведения баннера после загрузки страницы"
+
+msgctxt "Languages::ip5_banner.options.speed"
+msgid "ip5_banner.options.speed"
+msgstr "Скорость анимации при перелистывании"
+
+msgctxt "Languages::ip5_banner.options.fade"
+msgid "ip5_banner.options.fade"
+msgstr "Включить эффект затухания при перелистывании"
+
+msgctxt "Languages::ip5_banner.options.pauseOnHover"
+msgid "ip5_banner.options.pauseOnHover"
+msgstr "Пауза авто воспроизведения при наведении"
+
+msgctxt "Languages::ttc_ip5_banner.options.pauseOnHover"
+msgid "ttc_ip5_banner.options.pauseOnHover"
+msgstr "Автоматическая пауза проигрывания слайдера при наведении мыши"
+
+msgctxt "Languages::ip5_banner.options.lazyLoad"
+msgid "ip5_banner.options.lazyLoad"
+msgstr "Тип подгрузки баннеров (lazyLoad)"
+
+msgctxt "Languages::ip5_banner.options.progressive"
+msgid "ip5_banner.options.progressive"
+msgstr "Постепенный - Progressive"
+
+msgctxt "Languages::ip5_banner.options.ondemand"
+msgid "ip5_banner.options.ondemand"
+msgstr "Отложенная загрузка - ondemand"
+
+msgctxt "Languages::ip5_banner.options.margin"
+msgid "ip5_banner.options.margin"
+msgstr "Отступы, px"
+
+msgctxt "Languages::ttc_ip5_banner.options.margin"
+msgid "ttc_ip5_banner.options.margin"
+msgstr "Отступы, px"
+
+msgctxt "Languages::ip5_banner.type.graphic"
+msgid "ip5 banner extended type"
+msgstr "IP5: Расширенный графический баннер"
+
+msgctxt "Languages::ip5_banner.type.video"
+msgid "ip5 video extended type"
+msgstr "IP5: Расширенный баннер с фоновым видео"
+
+msgctxt "Languages::ip5_banner.params.enable_tablet"
+msgid "ip5 enable tablet"
+msgstr "Использовать расширенные настройки для планшета"
+
+msgctxt "Languages::ip5_banner.params.enable_mobile"
+msgid "ip5 enable mobile"
+msgstr "Использовать расширенные настройки для смартфона"

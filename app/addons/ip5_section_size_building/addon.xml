@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<addon scheme="3.0">
+	<id>ip5_section_size_building</id>
+	<version>1.0</version>
+	<priority>100500</priority>
+	<status>active</status>
+	<position>8</position>
+	<auto_install>MULTIVENDOR,ULTIMATE</auto_install>
+	<default_language>ru</default_language>
+	<supplier>IP5 Agency</supplier>
+	<supplier_link>https://ip5.agency</supplier_link>
+	<authors>
+		<author>
+			<name>IP5 Agency</name>
+			<email>info@ip5.agency</email>
+			<url>https://ip5.agency</url>
+			<phone>+7(978) 559-15-55</phone>
+		</author>
+	</authors>
+	<functions>
+        <item for="install">fn_ip5_section_size_building_install</item>
+    </functions>
+</addon>
