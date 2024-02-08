@@ -1,0 +1,64 @@
+// GRID addon section size building
+
+@fluid-row_min-padding: 20px;
+@fluid-row_max-padding: 40px;
+
+.bg-primary {
+    background-color: @primary_button;
+}
+.bg-secondary {
+    background-color: @secondary_button;
+}
+.bg-tertiary {
+    background-color: @tertiary_button;
+}
+
+.container-fluid {
+    width: auto;
+    min-width: inherit;
+    max-width: none;
+    padding-right: 0;
+    padding-left: 0;
+}
+.container-fluid-row {
+    max-width: @fluidContainerMaxWidth;
+    min-width: @fluidContainerMinWidth;
+    margin: 0 auto;
+    .clearfix();
+    padding: 0 20px;
+
+    @media only screen and (max-width : 767px) {
+        padding: 0 14px;
+    }
+}
+.container-fluid > .container-fluid-row.container-fluid-row-unlimit {
+    padding: 0;
+}
+.container-fluid-row-bg-limit,
+.container-fluid-row-unlimit {
+    max-width: none;
+    padding: 0;
+}
+.container-fluid-row-bg-limit > .row-fluid {
+    max-width: @fluidContainerMaxWidth;
+    min-width: @fluidContainerMinWidth;
+    margin: 0 auto;
+}
+.container-fluid-row.container-fluid-row-unlimit {
+    padding-right: 0;
+    padding-left: 0;
+}
+.row-fluid [class*="span"]:first-child {
+    padding-left: 0;
+    padding-right: 0;
+}
+.container-fluid .ty-footer-grid__full-width {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+
+
+
+
+
