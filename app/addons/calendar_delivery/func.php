@@ -5,6 +5,7 @@ use Tygh\Languages\Values;
 use Tygh\Registry;
 use Tygh\Enum\YesNo;
 use Tygh\Enum\SiteArea;
+use Tygh\Shippings\Shippings;
 
 defined('BOOTSTRAP') or die('Access denied');
 
@@ -31,13 +32,21 @@ function fn_calendar_delivery_install()
     }
     if (Registry::get('addons.storages.status') == 'A') {
         db_query("ALTER TABLE ?:storages 
-          ADD `nearest_delivery` varchar(1) NOT NULL DEFAULT '1',
+          ADD `nearest_delivery` TINYINT UNSIGNED NOT NULL DEFAULT '1',
           ADD `working_time_till` varchar(5) NOT NULL DEFAULT '17:00',
           ADD `exception_days` varchar(7) NOT NULL,
           ADD `exception_time_till` varchar(5) NOT NULL DEFAULT '11:00',
           ADD `delivery_date` varchar(7) NOT NULL DEFAULT '1111111',
-          ADD `monday_rule` varchar(8) NOT NULL DEFAULT 'Y',
+          ADD `monday_rule` varchar(1) NOT NULL DEFAULT 'Y',
           ADD `holidays` varchar(255) NOT NULL DEFAULT ''
+        ");
+        db_query("CREATE TABLE `?:user_storages` (
+            `storage_id` mediumint(8) unsigned NOT NULL,
+            `user_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+            `delivery_date` varchar(7) NOT NULL DEFAULT '1111111',
+            PRIMARY KEY (`storage_id`,`user_id`),
+            KEY `user_id` (`user_id`)
+            ) ENGINE=MyISAM DEFAULT CHARSET UTF8;
         ");
     }
 }
@@ -59,6 +68,7 @@ function fn_calendar_delivery_uninstall()
           DROP `monday_rule`,
           DROP `holidays`
         ");
+        db_query("DROP TABLE IF EXISTS `?:user_storages`");
     }
 }
 
@@ -98,32 +108,21 @@ function fn_calendar_delivery_exim1c_order_xml_pre(&$order_xml, $order_data, $cm
 }
 
 function fn_calendar_delivery_get_companies($params, &$fields, $sortings, $condition, $join, $auth, $lang_code, $group) {
-    //$fields[] = 'tomorrow_rule';
-    //$fields[] = 'tomorrow_timeslot';
-    $fields[] = 'nearest_delivery';
-    $fields[] = 'working_time_till';
-    $fields[] = 'saturday_shipping';
-    $fields[] = 'sunday_shipping';
-    $fields[] = 'monday_rule';
-    // backward compatibility remove in June 2020
-    // $fields[] = "'Y' as after17rule";
-    // extra backward compatibility remove in October 2020
-    $fields[] = "'Y' as tomorrow_rule";
-    $fields[] = 'working_time_till as tomorrow_timeslot';
-    $fields[] = 'monday_rule as saturday_rule';
-
-    $fields[] = 'period_start';
-    $fields[] = 'period_finish';
-    $fields[] = 'period_step';
+    if (fn_allowed_for('MULTIVENDOR')) {
+        $fields = array_merge($fields, [
+            '?:companies.nearest_delivery',
+            '?:companies.max_date',
+            '?:companies.working_time_till',
+            '?:companies.saturday_shipping',
+            '?:companies.sunday_shipping',
+            '?:companies.monday_rule',
+            '?:companies.period_start',
+            '?:companies.period_finish',
+            '?:companies.period_step'
+        ]);
+    }
 }
 
-// backward compatibility
-function fn_calendar_delivery_get_company_data($company_id, $lang_code, $extra, &$fields, $join, $condition) {
-    // remove in October 2020
-    $fields[] = "'Y' as tomorrow_rule";
-    $fields[] = 'working_time_till as tomorrow_timeslot';
-    $fields[] = 'monday_rule as saturday_rule';
-}
 
 function fn_calendar_get_nearest_delivery_day($shipping_params = [], $get_ts = false) {
     $nearest_delivery = $shipping_params['nearest_delivery'] ?? 0;
@@ -155,7 +154,7 @@ function fn_calendar_get_nearest_delivery_day($shipping_params = [], $get_ts = f
         } while (1);
     }
 
-    if (isset($shipping_params['exception_days']) && !empty((int) $shipping_params['exception_days'])) {
+    if (!YesNo::toBool($shipping_params['ignore_exception_days']) && isset($shipping_params['exception_days']) && !empty((int) $shipping_params['exception_days'])) {
         for($day = 1; $day < $nearest_delivery; $day++) {
             $weekday = 1 << getdate(strtotime("+$day day midnight"))['wday'];
             if (bindec(strrev($shipping_params['exception_days'])) & $weekday) {
@@ -165,13 +164,31 @@ function fn_calendar_get_nearest_delivery_day($shipping_params = [], $get_ts = f
         }
     }
 
+    if (!empty($shipping_params['holidays'])) {
+        $calendar_format = "d/m/Y";
+        if (Registry::get('settings.Appearance.calendar_date_format') == 'month_first') {
+            $calendar_format = "m/d/Y";
+        }
+        $nearest = date($calendar_format, strtotime("+$nearest_delivery day midnight"));
+        while (in_array($nearest, $shipping_params['holidays'])) {
+            $nearest_delivery++;
+            $nearest = date($calendar_format, strtotime("+$nearest_delivery day midnight"));
+        }
+    }
+
     return $nearest_delivery;
 }
 
 function fn_calendar_delivery_pre_update_order(&$cart, $order_id) {
     if (count($cart['product_groups']) == 1) {
         $group = reset($cart['product_groups']);
-        if (!empty($group['delivery_date'])) $cart['delivery_date'] = fn_parse_date($group['delivery_date']);
+        if (!empty($group['delivery_date'])) {
+            if (is_numeric($group['delivery_date'])) {
+                $cart['delivery_date'] = $group['delivery_date'];
+            } else {
+                $cart['delivery_date'] = fn_parse_date(str_replace('.', '/', $group['delivery_date']));
+            }
+        }
     }
 }
 
@@ -302,6 +319,8 @@ function fn_calendar_delivery_get_user_info($user_id, $get_profile, $profile_id,
 
 function fn_calendar_delivery_get_user_short_info_pre($user_id, &$fields, $condition, $join, $group_by) {
     $fields[] = 'delivery_date';
+    $fields[] = 'nearest_delivery';
+    $fields[] = 'monday_rule';
     if (Registry::get('addons.storages.status') == 'A') $fields[] = 'ignore_exception_days';
 }
 
@@ -345,18 +364,21 @@ function fn_calendar_delivery_calculate_cart_taxes_pre($cart, $cart_products, &$
                 $usergroup_working_time_till = db_get_row('SELECT working_time_till FROM ?:usergroups WHERE usergroup_id IN (?a) AND working_time_till != ""', $auth['user_id']['usergroup_ids']);
             }
 
-            //TODO TEMP!! удалить company_settings в середине 2022, надо бы настройки календаря переносить из вендора в шипинг
-            $company_settings = db_get_row('SELECT nearest_delivery, working_time_till, saturday_shipping, sunday_shipping, monday_rule, period_start, period_finish, period_step FROM ?:companies WHERE company_id = ?i', $group['company_id']);
-
             $general_weekdays = '1111111';
-            $general_weekdays[0] = YesNo::toBool($company_settings['sunday_shipping']) ? 1 : 0;
-            $general_weekdays[6] = YesNo::toBool($company_settings['saturday_shipping']) ? 1 : 0;
+            if (fn_allowed_for('MULTIVENDOR')) {
+                $company_settings = db_get_row('SELECT nearest_delivery, working_time_till, saturday_shipping, sunday_shipping, monday_rule, period_start, period_finish, period_step FROM ?:companies WHERE company_id = ?i', $group['company_id']);
+                $general_weekdays[0] = YesNo::toBool($company_settings['sunday_shipping']) ? 1 : 0;
+                $general_weekdays[6] = YesNo::toBool($company_settings['saturday_shipping']) ? 1 : 0;
+            } else {
+                $company_settings = [];
+            }
 
             foreach ($group['shippings'] as $shipping_id => &$shipping) {
                 if (isset($shipping['module']) && $shipping['module'] == 'calendar_delivery') {
                     $shipping_company_settings = $company_settings;
                     unset($shipping['service_params']['holidays']);
-                    if (!YesNo::toBool($shipping['service_params']['depends_on_parent'])) {
+
+                    if (fn_allowed_for('ULTIMATE') || !YesNo::toBool($shipping['service_params']['depends_on_parent'])) {
                         $general_weekdays = '1111111';
                         $general_weekdays[0] = YesNo::toBool($shipping['service_params']['sunday_shipping']) ? 1 : 0;
                         $general_weekdays[6] = YesNo::toBool($shipping['service_params']['saturday_shipping']) ? 1 : 0;
@@ -370,6 +392,11 @@ function fn_calendar_delivery_calculate_cart_taxes_pre($cart, $cart_products, &$
                         $storage_weekdays = $storage_settings['delivery_date'];
                     }
 
+                    // если у пользователя понедельник выключен при заказе в выходные, значит понедельник надо выколоть, этот флаг главный!
+                    if (!YesNo::toBool($user_info['monday_rule'])) {
+                        $storage_settings['monday_rule'] = $user_info['monday_rule'];
+                    }
+
                     $weekdays_availability = $general_weekdays & $user_weekdays & $storage_weekdays;
 
                     fn_set_hook('calendar_delivery_weekdays_availability', $weekdays_availability, $group);
@@ -379,14 +406,15 @@ function fn_calendar_delivery_calculate_cart_taxes_pre($cart, $cart_products, &$
                     }
 
                     // TODO грохнуть это к 2023 году так как повсеместно передодим на nearest_delivery_day weekdays_availability
-                    $shipping['service_params'] = fn_array_merge($shipping['service_params'], $shipping_company_settings, $storage_settings, $usergroup_working_time_till, ['ignore_exception_days' => $user_info['ignore_exception_days']]);
+                    $shipping['service_params'] = fn_array_merge($shipping['service_params'], $shipping_company_settings, $storage_settings, $usergroup_working_time_till, ['ignore_exception_days' => $user_info['ignore_exception_days'] ?? 'N']);
 
+                    $shipping['service_params']['nearest_delivery'] = max($shipping['service_params']['nearest_delivery'], $user_info['nearest_delivery']);
                     fn_set_hook('calendar_delivery_service_params', $group, $shipping, $shipping_company_settings, $usergroup_working_time_till);
 
                     $shipping['service_params']['weekdays_availability'] = strrev($weekdays_availability);
-                    $shipping['service_params']['nearest_delivery_day'] = fn_calendar_get_nearest_delivery_day($shipping['service_params']);
-
                     if (!empty($shipping['service_params']['holidays']) && !is_array($shipping['service_params']['holidays'])) $shipping['service_params']['holidays'] = explode(',', $shipping['service_params']['holidays']);
+
+                    $shipping['service_params']['nearest_delivery_day'] = fn_calendar_get_nearest_delivery_day($shipping['service_params']);
                 }
             }
 
@@ -407,6 +435,7 @@ function fn_calendar_delivery_calculate_cart_taxes_pre($cart, $cart_products, &$
                 $chosen_shipping_id = reset($group['chosen_shippings'])['shipping_id'];
                 $nearest_delivery_day = $group['shippings'][$chosen_shipping_id]['service_params']['nearest_delivery_day'];
                 $group['delivery_date'] = fn_date_format(strtotime("+ $nearest_delivery_day day"), Registry::get('settings.Appearance.date_format'));
+                if (!defined('API')) $group['delivery_date'] = str_replace('.', '/', $group['delivery_date']);
             }
 
             if (!empty($chosen_delivery_period)) {
@@ -579,7 +608,7 @@ function fn_calendar_delivery_allow_place_order_post(&$cart, $auth, $parent_orde
                     $weekdays_availability = $group['shippings'][$chosen_shipping_id]['service_params']['weekdays_availability'];
                     $weekday = 1 << getdate($chosen_ts)['wday'];
                     if (!(bindec($weekdays_availability) & $weekday)) {
-                        $res = false;   
+                        $res = false;
                     }
                 } else {
                     $res = false;
@@ -588,7 +617,7 @@ function fn_calendar_delivery_allow_place_order_post(&$cart, $auth, $parent_orde
             }
             if (empty($cart['delivery_period'])) unset($cart['delivery_period']);
 
-            if (!$res && SiteArea::isStorefront(AREA)) {
+            if (!$res && SiteArea::isStorefront(AREA) && !defined('ORDER_MANAGEMENT')) {
                 $result = false;
                 fn_set_notification('E', __('error'), __('calendar_delivery.choose_another_day'));
                 return;
@@ -617,5 +646,38 @@ function fn_calendar_delivery_delete_storages($storage_ids) {
 }
 
 function fn_calendar_delivery_post_delete_user($user_id, $user_data, $result) {
-    if ($result) db_query("DELETE FROM ?:user_storages WHERE user_id = ?i", $user_id);
+    if ($result && Registry::get('addons.storages.status') == 'A') db_query("DELETE FROM ?:user_storages WHERE user_id = ?i", $user_id);
+}
+
+function fn_calendar_delivery_get_shipping_params() {
+    $shippings = Shippings::getShippingsList([], DESCR_SL, AREA, ['get_images' => true]);
+    $shippings = array_filter($shippings, function ($v) {return $v['module'] == 'calendar_delivery';});
+
+    if ($shippings) {
+        $product_groups = [['shippings' => &$shippings, 'company_id' => Tygh::$app['session']['auth']['company_id'], 'storage_id' => Registry::ifget('runtime.current_storage.storage_id', 0)]];
+
+        fn_calendar_delivery_calculate_cart_taxes_pre([], [], $product_groups, false, Tygh::$app['session']['auth']);
+        $shipping = reset($shippings);
+
+        if ($shipping['service_params']['nearest_delivery_day'] == 0) {
+            $shipping['service_params']['nearest_delivery_day_text'] = __('today');
+        } elseif ($shipping['service_params']['nearest_delivery_day'] == 1) {
+            $shipping['service_params']['nearest_delivery_day_text'] = __('tomorrow');
+        } elseif ($shipping['service_params']['nearest_delivery_day'] == 2) {
+            $shipping['service_params']['nearest_delivery_day_text'] = __('day_after_tomorrow');
+        } else {
+            $days = array(
+                'Воскресенье', 'Понедельник', 'Вторник', 'Среда',
+                'Четверг', 'Пятница', 'Суббота'
+            );
+            $ts = strtotime("+".$shipping['service_params']['nearest_delivery_day']." days");
+            $shipping['service_params']['nearest_delivery_day_text'] = $days[(date('w', $ts))];
+        }
+
+        return $shipping;
+    }
+}
+
+function fn_calendar_delivery_fill_user_fields(&$exclude, $user_data) {
+    $exclude[] = 'nearest_delivery';
 }
