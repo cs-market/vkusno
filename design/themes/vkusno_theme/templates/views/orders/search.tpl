@@ -86,6 +86,8 @@
                         but_title=__("search_products")
                         but_href="products.search?search_performed=Y&order_ids=`$o.order_id`"
                         but_icon="ty-orders__actions-icon ty-icon-search"}
+
+                {hook name="orders:search_bullets"}{/hook}
             </td>
         </tr>
     {foreachelse}

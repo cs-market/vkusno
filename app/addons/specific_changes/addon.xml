@@ -12,4 +12,20 @@
     <supplier_link>http://cs-market.com/</supplier_link>
     <has_icon>Y</has_icon>
     <default_language>ru</default_language>
+    <language_variables>        
+        <item lang="ru" id="specific_changes.deadline">Изменение заказа доступно до [deadline]</item>
+    </language_variables>
+    <settings>
+        <sections>
+            <section id="general">
+                <items>
+                    <item id="order_cancel_ttl">
+                        <type>input</type>
+                        <name>Время доступное для редактирования заказа в минутах</name>
+                        <default_value>0</default_value>
+                    </item>
+                </items>
+            </section>
+        </sections>
+    </settings>
 </addon>
