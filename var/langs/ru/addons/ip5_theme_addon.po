@@ -19,3 +19,19 @@ msgstr "УНИВИТА"
 msgctxt "Languages::sale_all_pages"
 msgid "sale_all_pages"
 msgstr "Все"
+
+msgctxt "Languages::energy_value_per"
+msgid "energy_value_per"
+msgstr "Энергетическая ценность на 100 г."
+
+msgctxt "Languages::ip5__mainbox_simple_on_sale"
+msgid "ip5__mainbox_simple_on_sale"
+msgstr "Оболочка для блока Скидки и акции"
+
+msgctxt "Languages::ip5__mainbox_simple_on_bestsellers"
+msgid "ip5__mainbox_simple_on_bestsellers"
+msgstr "Оболочка для блока Хиты продаж"
+
+msgctxt "Languages::ip5__mainbox_simple_on_products"
+msgid "ip5__mainbox_simple_on_products"
+msgstr "Оболочка для блоков без кнопки"

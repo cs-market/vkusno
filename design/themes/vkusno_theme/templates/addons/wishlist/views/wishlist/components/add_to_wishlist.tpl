@@ -1,3 +1,14 @@
+<div class="ip5_wishlist cm-reload-{$obj_id}" id="wish_list_{$obj_id}">
+
+    {assign var="wishlist_products" value=$smarty.session.wishlist.products}
+    {assign var="in_wishlist_flag" value=false}
+
+    {foreach from=$wishlist_products item="item" name=cproducts}
+        {if $item.product_id == $obj_id}
+            {assign var="in_wishlist_flag" value=true}
+        {/if}
+    {/foreach}
+
 {$wishlist_button_type = $wishlist_button_type|default:  "icon"}
 {$but_id               = $wishlist_but_id|default:       $but_id}
 {$but_name             = $wishlist_but_name|default:     $but_name}
@@ -27,3 +38,4 @@ but_onclick=$but_onclick
 but_href=$but_href
 but_icon=$but_icon
 }
+    <!--wish_list_{$obj_id}--></div>

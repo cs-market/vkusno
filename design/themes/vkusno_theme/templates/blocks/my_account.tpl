@@ -5,7 +5,7 @@
         <a class="ty-account-info__title" href="{"profiles.update"|fn_url}">
             <img src="{$self_images_dir}/user_pc.svg" class="ty-account-info__title-img" alt="" />
             {if $user_info.firstname || $user_info.lastname}
-                <span class="ty-account-info__title-txt">{$user_info.firstname|truncate:2:"."} {$user_info.lastname|truncate:2:"."}</span>
+                <span class="ty-account-info__title-txt">{$user_info.firstname} {$user_info.lastname}</span>
             {else}
                 <span class="ty-account-info__title-txt">{$user_info.email|truncate:4:"."}</span>
             {/if}
