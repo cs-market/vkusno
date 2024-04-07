@@ -1,7 +1,7 @@
 {if $products}
 
     {script src="js/tygh/exceptions.js"}
-
+    {script src="js/tygh/cart_content.js"}
 
     {if !$no_pagination}
         {include file="common/pagination.tpl"}
@@ -30,6 +30,7 @@
     {/if}
     <div class="grid-list">
         {strip}
+            {$cart_products = $smarty.session.cart.products|array_column:'product_id'}
             {foreach from=$splitted_products item="sproducts" name="sprod"}
                 {foreach from=$sproducts item="product" name="sproducts"}
                     <div class="ty-column{$columns}">
@@ -100,7 +101,20 @@
 
 
                                         {capture name="product_multicolumns_list_control_data_wrapper"}
-                                            <div class="ty-grid-list__control">
+                                            <div class="ty-grid-list__control cm-product-controls {if $obj_id|in_array:$cart_products}in-cart{/if} {if $product.is_weighted == 'Y'}is-weighted{/if}">
+                                                {hook name="products:product_multicolumns_list_control_data_wrapper"}
+                                                {assign var="qty" value="qty_`$obj_id`"}
+                                                {if $smarty.capture.$qty|trim}
+                                                    <div class="ty-grid-list__qty {if $obj_id|in_array:$cart_products}ty-cart-content__qty{/if}">
+                                                        {$smarty.capture.$qty nofilter}
+                                                    </div>
+                                                    {include file="buttons/update_cart.tpl"
+                                                    but_id="button_cart"
+                                                    but_meta="ty-btn--recalculate-cart hidden hidden-phone hidden-tablet"
+                                                    but_name="dispatch[checkout.update_qty]"
+                                                    }
+                                                {/if}
+
                                                 {capture name="product_multicolumns_list_control_data"}
                                                     {hook name="products:product_multicolumns_list_control"}
                                                         {if $settings.Appearance.enable_quick_view == 'Y'}
@@ -112,26 +126,16 @@
                                                                 {$add_to_cart = "add_to_cart_`$obj_id`"}
                                                                 {$smarty.capture.$add_to_cart nofilter}
 
-                                                                <div class="ip5-list__addition cm-reload-{$obj_id}" id="wish_list_{$obj_id}">
-                                                                    {assign var="wishlist_products" value=$smarty.session.wishlist.products}
-                                                                    {assign var="in_wishlist_flag" value=false}
-
-                                                                    {foreach from=$wishlist_products item="item" name=cproducts}
-                                                                        {if $item.product_id == $obj_id}
-                                                                            {assign var="in_wishlist_flag" value=true}
-                                                                        {/if}
-                                                                    {/foreach}
-
-                                                                    {if !$hide_wishlist_button}
-                                                                        {include file="addons/wishlist/views/wishlist/components/add_to_wishlist.tpl" but_id="button_wishlist_`$obj_prefix``$product.product_id`" but_name="dispatch[wishlist.add..`$product.product_id`]" but_text="В избранное" but_meta="ty-btn__tertiary ty-add-to-wish ty-product-block__btn {if $in_wishlist_flag == true}has_inwishlist{/if}"}
-                                                                    {/if}
-                                                                    <!--wish_list_{$obj_id}--></div>
+                                                                {if !$hide_wishlist_button}
+                                                                    {include file="addons/wishlist/views/wishlist/components/add_to_wishlist.tpl" but_id="button_wishlist_`$obj_prefix``$product.product_id`" but_name="dispatch[wishlist.add..`$product.product_id`]" but_text="В избранное" but_meta="ty-btn__tertiary ty-add-to-wish ty-product-block__btn {if $in_wishlist_flag == true}has_inwishlist{/if}"}
+                                                                {/if}
                                                             </div>
                                                         {/if}
                                                     {/hook}
                                                 {/capture}
                                                 {$smarty.capture.product_multicolumns_list_control_data nofilter}
-                                            </div>
+                                                {/hook}
+                                                </div>
                                         {/capture}
 
                                         {if $smarty.capture.product_multicolumns_list_control_data|trim}

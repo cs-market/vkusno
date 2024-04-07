@@ -109,6 +109,20 @@ Elements: styles
     justify-content: space-between;
 }
 
+.flex(@rc, @position, @rev, @wnw) when (@rc = c) and (@position = c) and (@rev = n) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: @wnw;
+    justify-content: center;
+}
+
+.flex(@rc, @position, @rev, @wnw) when (@rc = c) and (@position = c) and (@rev = y) {
+    display: flex;
+    flex-direction: column-reverse;
+    flex-wrap: @wnw;
+    justify-content: center;
+}
+
 .icon (@val) when (@val = 8) {
     font-family: '@{icomoon-font-family}'!important;
     font-size: @body_font_size - 8;
@@ -157,6 +171,13 @@ Elements: styles
     height: @body_font_size + 8;
 }
 
+.icon (@val) when (@val = 32) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size + 16;
+    line-height: @body_font_size + 16;
+    width: @body_font_size + 16;
+    height: @body_font_size + 16;
+}
 
 .img (@val) {
     min-width: @val;
@@ -408,6 +429,14 @@ Elements: styles
     line-height: @body_font_size + 8;
 }
 
+.p (@val, @weight)  when (@val = 21) {
+    font-family: @body_font;
+    font-size: @body_font_size + 5;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 9;
+}
+
 .p (@val, @weight)  when (@val = 22) {
     font-family: @body_font;
     font-size: @body_font_size + 6;
@@ -422,6 +451,14 @@ Elements: styles
     font-style: @body_font_style;
     font-weight: @weight;
     line-height: @body_font_size + 12;
+}
+
+.p (@val, @weight)  when (@val = 28) {
+    font-family: @body_font;
+    font-size: @body_font_size + 12;
+    font-style: @body_font_style;
+    font-weight: @weight;
+    line-height: @body_font_size + 16;
 }
 
 
