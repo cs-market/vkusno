@@ -67,3 +67,13 @@ msgstr "в"
 msgctxt "Languages::ip5_theme_addon.edit_order"
 msgid "ip5_theme_addon.edit_order"
 msgstr "Изменить заказ"
+
+msgctxt "Languages::ip5_theme_addon.delivery_details"
+msgid "ip5_theme_addon.delivery_details"
+msgstr "Данные о доставке"
+
+msgctxt "Languages::ip5_theme_addon.paid"
+msgid "ip5_theme_addon.paid"
+msgstr "Оплачено"
+
+

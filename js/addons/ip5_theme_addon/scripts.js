@@ -47,21 +47,21 @@
             $(".ip5_header .top-cart-content .ty-dropdown-box__content--cart .ty-cart-items-delete a").click();
     });
 
-    // $(window).on('resize',function(){
-    //     var viewportWidth = $(window).outerWidth();
-    //     // console.log(viewportWidth);
-    //     //
-    //     // if ($("body").width() >= 1526 && $("body").width() <= 2549) {
-    //     //     var viewportWidth = $(window).outerWidth();
-    //     //     var zoom = viewportWidth / 2500;
-    //     //     $('body').css('zoom', zoom);
-    //     // }else
-    //     if ($("body").width() >= 768 && $("body").width() <= 1525) {
-    //         var viewportWidth = $(window).outerWidth();
-    //         var zoom = viewportWidth / 1535;
-    //         $('body').css('zoom', zoom);
-    //     }
-    // });
+    $(window).on('resize',function(){
+        var viewportWidth = $(window).outerWidth();
+        // console.log(viewportWidth);
+        //
+        // if ($("body").width() >= 1526 && $("body").width() <= 2549) {
+        //     var viewportWidth = $(window).outerWidth();
+        //     var zoom = viewportWidth / 2500;
+        //     $('body').css('zoom', zoom);
+        // }else
+        if ($("body").width() >= 768 && $("body").width() <= 1525) {
+            var viewportWidth = $(window).outerWidth();
+            var zoom = viewportWidth / 1535;
+            $('body').css('zoom', zoom);
+        }
+    });
 
     if ($(window).width() > 767) {
         var optionsHeight = $('.ty-product-detail .ty-product-block__wrapper .ty-product-block__img-wrapper').height();
