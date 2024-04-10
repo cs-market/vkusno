@@ -37,6 +37,103 @@ Elements: styles
     }
 }
 
+.ip5_sale_page {
+    .ty-sort-container {
+        display: none;
+    }
+}
+
+.ip5_sale_banners {
+    margin-bottom: 40px;
+    opacity: 0.99;
+
+    @media only screen and (max-width: 767px) {
+        margin-bottom: 24px;
+    }
+
+    .container-fluid-row {
+        padding: 0;
+    }
+
+    .ip5_sale_banners_top {
+        margin-bottom: 20px;
+
+        @media only screen and (max-width: 767px) {
+            margin-bottom: 4px;
+        }
+
+        & > .row-fluid {
+            .flex(r,s,n,nowrap);
+            gap: 20px;
+
+            @media only screen and (max-width: 767px) {
+                .flex(c,s,n,nowrap);
+                gap: 4px;
+            }
+
+            &:after, &:before {
+                display: none;
+            }
+        }
+
+        .banner_left,
+        .banner_center,
+        .banner_right {
+            margin: 0;
+            width: 33.3333%;
+
+            @media only screen and (max-width: 767px) {
+                width: 100%;
+            }
+
+            .swiper-slide {
+                height: 204px!important;
+
+                @media only screen and (max-width: 380px) {
+                    height: 164px!important;
+                }
+            }
+        }
+    }
+
+    .ip5_sale_banners_bottom {
+        & > .row-fluid {
+            .flex(r,s,n,nowrap);
+            gap: 20px;
+
+            @media only screen and (max-width: 767px) {
+                .flex(r,s,n,wrap);
+                gap: 4px;
+            }
+
+            &:after, &:before {
+                display: none;
+            }
+        }
+
+        .banner {
+            margin: 0;
+            width: 20%;
+
+            @media only screen and (max-width: 767px) {
+                //width: 50%;
+                width: calc(~"50% - 2px");
+            }
+
+            .swiper-slide, picture {
+                height: 205px!important;
+                width: 217px!important;
+
+                @media only screen and (max-width: 500px) {
+                    height: 139px!important;
+                    width: 144px!important;
+                }
+            }
+        }
+    }
+
+}
+
 .ip5_catalog_banners {
     margin-bottom: 33px;
     opacity: 0.99;
