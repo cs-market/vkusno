@@ -76,4 +76,6 @@ msgctxt "Languages::ip5_theme_addon.paid"
 msgid "ip5_theme_addon.paid"
 msgstr "Оплачено"
 
-
+msgctxt "Languages::ip5_theme_addon.save"
+msgid "ip5_theme_addon save"
+msgstr "Сохранить изменения"

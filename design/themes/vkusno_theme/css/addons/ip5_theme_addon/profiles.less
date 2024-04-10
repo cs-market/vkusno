@@ -1,0 +1,155 @@
+
+.profile-update {
+    max-width: 906px;
+    margin: 0 auto;
+
+    .ty-mainbox-title {
+        margin: 20px 0 0 0;
+    }
+
+    .ty-profile-field.ty-account {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        width: 906px;
+        padding: 28px;
+        border-radius: 20px;
+        border: 1px solid @tertiary_button;
+        background: #FFF;
+        box-shadow: 0 4px 34px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .ty-profile-field__buttons.buttons-container {
+        margin: 0;
+        padding: 0;
+
+        .ty-btn__secondary{
+            .btn_primary();
+        }
+
+        .ty-profile-field__reset {
+            display: none;
+        }
+
+    }
+
+
+    [name*="profile_form"] {
+
+        input[type="text"], input[type="password"], input[type="tel"], input[type="number"] {
+            height: 65px;
+        }
+
+        .ty-control-group {
+            position: relative;
+            margin: 10px 0;
+
+            .ty-input-text {
+                border-radius: 12px;
+                border: 1px solid @old_price;
+                padding: 21px;
+                .p(16,400);
+                color: @font;
+
+                &:focus {
+                    box-shadow: none;
+                }
+            }
+
+            .ty-control-group__title {
+                position: absolute;
+                top: 25px;
+                padding: 0;
+            }
+
+            label {
+                .p(12,400);
+                color: @old_price;
+                top: 5px;
+                left: 21px;
+                bottom: auto;
+
+                @media only screen and (max-width: 767px) {
+                    left: 17px;
+                    top: 3px;
+                }
+            }
+
+        }
+
+
+        .ty-input-text:placeholder-shown:not(:focus):not(:focus-within)+.ty-control-group__title {
+            height: max-content;
+            top: 21px;
+            .p(16,400);
+
+            @media only screen and (max-width: 767px) {
+                .p(14,400);
+                top: 15px;
+            }
+        }
+
+
+
+
+
+
+
+        /*.litecheckout__field {
+            margin: 0;
+
+            input, textarea {
+                border-radius: 12px;
+                border: 1px solid @old_price;
+                padding: 21px;
+                .p(16,400);
+                color: @font;
+
+                @media only screen and (max-width: 767px) {
+                    .p(14,400);
+                    padding: 14px 16px;
+                }
+
+                &:focus {
+                    box-shadow: none;
+                }
+            }
+
+            textarea {
+                resize: none;
+                min-height: max-content;
+                height: 64px;
+
+                @media only screen and (max-width: 767px) {
+                    height: 100px;
+                }
+            }
+
+            label {
+                .p(12,400);
+                color: @old_price;
+                top: 5px;
+                left: 21px;
+                bottom: auto;
+
+                @media only screen and (max-width: 767px) {
+                    left: 17px;
+                    top: 3px;
+                }
+            }
+
+            .litecheckout__input:placeholder-shown:not(:focus):not(:focus-within)+.litecheckout__label {
+                height: max-content;
+                top: 21px;
+                .p(16,400);
+
+                @media only screen and (max-width: 767px) {
+                    .p(14,400);
+                    top: 15px;
+                }
+            }
+        }*/
+
+    }
+
+}
