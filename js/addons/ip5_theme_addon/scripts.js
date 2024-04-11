@@ -388,13 +388,67 @@
                 }
             });
         }
-
     }
 
+    if ($('.profile-update .ty-account .ty-sex').length > 0) {
+        $(document).ready(function() {
+            $('.ty-sex span').click(function() {
+                var input = $(this).prev('input');
+                input.prop('checked', true);
+                $('.ty-sex input').not(input).prop('checked', false);
+            });
+        });
+    }
+
+    if ($('.profile-update .ty-account').length > 0) {
+        $('.ty-input-text').each(function() {
+            toggleLabelClass($(this));
+        });
+
+        $('.ty-input-text').on('input', function() {
+            toggleLabelClass($(this));
+        });
+
+        $('.ty-input-text').on('focus', function() {
+            $(this).siblings('label').removeClass('no_active');
+        });
+
+        $('.ty-input-text').on('blur', function() {
+            toggleLabelClass($(this));
+        });
+
+        function toggleLabelClass(input) {
+            if (!input.val()) {
+                input.siblings('label').addClass('no_active');
+            } else {
+                input.siblings('label').removeClass('no_active');
+            }
+        }
+
+        $('.ty-calendar__input').on('input', function() {
+            toggleLabelClassData($(this));
+        });
+
+        $('.ty-calendar__input').each(function() {
+            toggleLabelClassData($(this));
+        });
 
 
+        $('.ty-calendar__input').on('focus', function() {
+            $('.ty-date label.ty-control-group__title').removeClass('no_active');
+        });
 
+        $('.ty-calendar__input').on('blur', function() {
+            toggleLabelClassData($(this));
+        });
 
-
+        function toggleLabelClassData(input) {
+            if (!input.val()) {
+                $('.ty-date label.ty-control-group__title').addClass('no_active');
+            } else {
+                $('.ty-date label.ty-control-group__title').removeClass('no_active');
+            }
+        }
+    }
 
 }(Tygh, Tygh.$));

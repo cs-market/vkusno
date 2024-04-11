@@ -158,37 +158,52 @@
                     margin-top: 8px;
                 }
 
+                & > div {
+                    .flex(r,s,y,nowrap);
+                    gap: 24px;
+                }
+
                 .ty-control-group__title {
                     display: none;
                 }
 
-                //input {
-                //    position: absolute;
-                //    left: -999px;
-                //}
-                //
-                //span {
-                //    .p(16,400);
-                //    .flex(r,b,y,nowrap);
-                //    align-items: center;
-                //
-                //    &:before {
-                //        content: "";
-                //        width: 32px;
-                //        height: 32px;
-                //        .img(32px);
-                //        border-radius: 4px;
-                //        background: @tertiary_button;
-                //    }
-                //}
-                //
-                //input:checked + span {
-                //    &:before {
-                //        content: @vk-check;
-                //        .icon(32);
-                //        color: @primary_button;
-                //    }
-                //}
+                input {
+                    position: absolute;
+                    left: -999px;
+                }
+
+                span {
+                    .p(16,400);
+                    .flex(r,b,n,nowrap);
+                    align-items: center;
+                    margin: 0;
+                    gap: 8px;
+                    cursor: pointer;
+
+                    @media only screen and (max-width: 767px) {
+                        .p(12,400);
+                    }
+
+                    &:before {
+                        content: "";
+                        width: 32px;
+                        height: 32px;
+                        .img(32px);
+                        border-radius: 50%;
+                        background: @tertiary_button;
+                    }
+                }
+
+                input:checked + span {
+                    &:before {
+                        width: 18px;
+                        height: 18px;
+                        border: 7px solid @tertiary_button;
+                        background: @primary_button;
+                        min-width: 18px;
+                        min-height: 18px;
+                    }
+                }
             }
 
             &.ty-inn,
@@ -250,6 +265,7 @@
                 position: absolute;
                 padding: 0;
                 z-index: 1;
+                transition: .3s all;
 
                 @media only screen and (max-width: 767px) {
                     left: 17px;
@@ -257,7 +273,7 @@
                 }
             }
 
-            .ty-input-text:placeholder-shown:not(:focus):not(:focus-within)+.ty-control-group__title {
+            .ty-control-group__title.no_active {
                 height: max-content;
                 top: 21px;
                 .p(16,400);
