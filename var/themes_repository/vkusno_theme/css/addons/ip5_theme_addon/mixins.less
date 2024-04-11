@@ -179,6 +179,14 @@ Elements: styles
     height: @body_font_size + 16;
 }
 
+.icon (@val) when (@val = 36) {
+    font-family: '@{icomoon-font-family}'!important;
+    font-size: @body_font_size + 20;
+    line-height: @body_font_size + 20;
+    width: @body_font_size + 20;
+    height: @body_font_size + 20;
+}
+
 .img (@val) {
     min-width: @val;
     min-height: @val;
