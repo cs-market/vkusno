@@ -27,8 +27,13 @@
         {/foreach}
         {/hook}
     </ul>
-    <div class="ip5_filter_btn">
-        <span class="vk-filter"></span>
-        <span>{__("filters")}</span>
-    </div>
+
+    {if $category_data.category !== "Бренды"}
+        <div class="ip5_filter_btn">
+            <span class="vk-filter"></span>
+            <span>{__("filters")}</span>
+        </div>
+    {/if}
+
+
 {/if}

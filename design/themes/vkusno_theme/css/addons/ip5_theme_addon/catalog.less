@@ -412,6 +412,10 @@ Elements: styles
                         padding: 0;
                         margin: 0;
 
+                        .ty-product-filters__search {
+                            display: none;
+                        }
+
                         .ty-product-filters__item-more {
                             padding-bottom: 12px;
                             margin: 0;
@@ -420,6 +424,23 @@ Elements: styles
                                 .flex(c,s,n,nowrap);
                                 gap: 8px;
                                 margin: 0;
+                                max-height: unset!important;
+
+                                &::-webkit-scrollbar {
+                                    width: 4px;
+                                    height: 5px;
+                                }
+
+                                &::-webkit-scrollbar-thumb {
+                                    border-radius: 4px;
+                                    background: @primary_button;
+                                }
+
+                                &::-webkit-scrollbar-track {
+                                    box-shadow: none;
+                                    border-radius: 4px;
+                                    background: transparent;
+                                }
 
 
                                 li {
@@ -516,6 +537,7 @@ Elements: styles
                             border-radius: 6px;
                             margin: 9px 12px;
                             margin-bottom: 32px;
+                            padding: 0;
 
                             .ty-range-slider__wrapper {
                                 display: none;
@@ -1109,5 +1131,11 @@ Elements: styles
                 }
             }
         }
+    }
+}
+
+.ip5_new_page {
+    .ty-sort-container {
+        display: none;
     }
 }
