@@ -13,7 +13,7 @@ if (!defined('BOOTSTRAP')) { die('Access denied'); }
 function fn_ecl_instock_sorting_db_query(&$query)
 {
     if (AREA == 'C') {
-        if (strpos($query, '1 as instock_marker') !== false && strpos($query, 'instock_sorting') !== false) {
+        if (is_string($query) && strpos($query, '1 as instock_marker') !== false && strpos($query, 'instock_sorting') !== false) {
             //$query = str_replace('ORDER BY', 'ORDER BY instock_sorting DESC,', $query);
             $q_find = "ORDER BY";
             $q_replace = "ORDER BY instock_sorting DESC,";
@@ -23,6 +23,23 @@ function fn_ecl_instock_sorting_db_query(&$query)
         }
     }
 }
+
+/*
+ * переменная $query, передается в виде массива, а не строки.
+ *
+ * function fn_ecl_instock_sorting_db_query(&$query)
+{
+    if (AREA == 'C') {
+        if (strpos($query, '1 as instock_marker') !== false && strpos($query, 'instock_sorting') !== false) {
+            //$query = str_replace('ORDER BY', 'ORDER BY instock_sorting DESC,', $query);
+            $q_find = "ORDER BY";
+            $q_replace = "ORDER BY instock_sorting DESC,";
+            if (strrpos($query, $q_find) !== false) {
+                $query = substr_replace($query, $q_replace, strrpos($query, $q_find), strlen($q_find));
+            }
+        }
+    }
+}*/
 
 function fn_ecl_instock_sorting_get_products($params, &$fields, &$sortings, $condition, $join, $sorting, $group_by, $lang_code, $having)
 {

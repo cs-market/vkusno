@@ -17,6 +17,7 @@ Elements: styles
 
 .ip5-mainbox-simple-container {
     opacity: 0.99;
+
     .ip5-simple-container__title {
         .flex(r, b, n, nowrap);
         margin-bottom: 28px;
@@ -61,296 +62,15 @@ Elements: styles
     }
 
     .ty-mainbox-simple-body {
-        margin: 0 -10px;
+        .grid-list {
+            [class^="ty-column"] {
+                padding-bottom: 0;
 
-        @media only screen and (max-width: 767px) {
-            margin: 0 -4px;
+                @media only screen and (max-width: 767px) {
+                    padding-bottom: 0;
 
-            .grid-list {
-                [class^="ty-column"] {
-                    &:last-child {
+                    &:nth-child(4) {
                         display: none;
-                    }
-                }
-            }
-        }
-
-    }
-}
-
-
-.grid-list {
-
-    [class^="ty-column"] {
-        margin-right: 0;
-
-        @media only screen and (max-width: 767px) {
-            width: 33.333333333333%;
-        }
-    }
-
-    .ty-grid-list__item {
-        padding: 0 12px;
-        border: 0;
-        margin: 0 10px;
-
-        @media only screen and (max-width: 767px) {
-            margin: 0 4px;
-            padding: 0;
-        }
-
-        .ty-grid-list__image {
-            border-radius: 40px 12px;
-            background: @tertiary_button;
-            padding: 0;
-            border: 0;
-            margin: 0 -12px;
-
-            @media only screen and (max-width: 767px) {
-                margin: 0;
-                border-radius: 12px 4px;
-            }
-
-            .ty-product-labels {
-                top: auto;
-                bottom: 13px;
-                right: 71px;
-                margin: 0;
-
-                @media only screen and (max-width: 767px) {
-                    right: 36px;
-                    bottom: 4px;
-                    z-index: 0;
-                }
-
-                .ty-product-labels__item--discount {
-                    margin: 0;
-                    padding: 0;
-                    border-radius: 70px;
-
-                    .ty-product-labels__content {
-                        .p(14, 700);
-                        padding: 2px 6px;
-
-                        @media only screen and (max-width: 767px) {
-                            .p(10, 700);
-                            line-height: 11px;
-                            padding: 0 4px;
-                        }
-                    }
-                }
-            }
-        }
-
-        .ty-grid-list__price {
-            margin-top: 16px;
-            .flex(r, s, n, nowrap);
-            gap: 8px;
-            align-items: flex-end;
-
-            @media only screen and (max-width: 767px) {
-                margin-top: 8px;
-                gap: 3px;
-            }
-
-
-            .ty-price {
-                color: @font;
-
-                .ty-price-num {
-                    .p(24, 800);
-                    font-family: @price_font;
-
-                    @media only screen and (max-width: 767px) {
-                        .p(14, 800);
-                        font-family: @price_font;
-                    }
-
-                    &:last-child {
-                        .p(24, 700);
-                        font-family: @price_font;
-
-                        @media only screen and (max-width: 767px) {
-                            .p(14, 700);
-                            font-family: @price_font;
-                        }
-                    }
-                }
-            }
-
-            .ty-list-price {
-                color: @old_price;
-                .p(16, 400);
-                font-family: @price_font;
-
-                @media only screen and (max-width: 767px) {
-                    .p(10, 400);
-                    font-family: @price_font;
-                }
-            }
-        }
-
-        .ty-grid-list__item-name {
-            margin-top: 16px;
-            min-height: 60px;
-            margin-bottom: 0;
-
-            @media only screen and (max-width: 767px) {
-                min-height: 42px;
-                margin-top: 8px;
-            }
-
-            .product-title {
-                .p(16, 400);
-                color: @font;
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 3;
-
-                @media only screen and (max-width: 767px) {
-                    .p(10, 400);
-                }
-            }
-        }
-
-        .grid-list__content {
-            padding-top: 16px;
-            .flex(r,b,y,nowrap);
-
-            @media only screen and (max-width: 767px) {
-                display: none;
-            }
-
-            .lactose_free {
-                .p(12,400);
-                color: @primary_button;
-                padding: 4px 12px;
-                border-radius: 70px;
-                background: @tertiary_button;
-                display: block;
-            }
-        }
-
-        .grid-list__rating {
-            .flex(r,e,n,nowrap);
-            gap: 4px;
-            align-items: center;
-
-
-            @media only screen and (max-width: 767px) {
-                display: none;
-            }
-
-            p {
-                padding: 0;
-                .p(12,400);
-                color: @old_price;
-            }
-
-            span {
-                .icon(16);
-            }
-        }
-
-        .ty-grid-list__control {
-            display: block;
-            width: auto;
-            padding: 0;
-            position: inherit;
-            background: transparent;
-            margin: 0;
-            border: 0;
-            margin-top: 16px;
-
-            @media only screen and (max-width: 767px) {
-                margin-top: 12px;
-            }
-
-            .button-container {
-                .flex(r, b, n, nowrap);
-                gap: 8px;
-
-                [id^="add_to_cart"] {
-                    width: 100%;
-                }
-
-                .ty-btn__buy-cheaper {
-                    display: none;
-                }
-
-                .ty-btn__add-to-cart {
-                    border-radius: @border_radius_l;
-                    background: @primary_button;
-                    padding: 12px 28px;
-                    text-align: center;
-                    height: max-content;
-                    border: 0;
-                    font-size: 0;
-                    margin: 0;
-                    width: 100%;
-                    .flex(r, c, n, nowrap);
-
-                    @media only screen and (max-width: 767px) {
-                        padding: 3px 10px;
-                    }
-
-                    &:hover {
-                        background: @primary_button_hover;
-                        box-shadow: @primary_button_shadow;
-                        transition: @transition;
-                    }
-
-                    &:before {
-                        background: url("/images/add_to_cart.svg") no-repeat;
-                        display: block;
-                        .img(24px);
-                        content: "";
-
-                        @media only screen and (max-width: 767px) {
-                            .img(19px);
-                            background-size: contain;
-                        }
-                    }
-                }
-
-                .ip5-list__addition {
-                    @media only screen and (max-width: 767px) {
-                        display: none;
-                    }
-                }
-
-                .ty-add-to-wish {
-                    margin: 0;
-                    .img(52px);
-                    border: 1px solid @tertiary_button;
-                    border-radius: 50%;
-                    .flex(r, c, n, nowrap);
-                    align-items: center;
-
-                    .ty-icon-heart {
-                        top: 0;
-                        margin: 0;
-
-
-                        &:before {
-                            background: url("/images/add_wish.svg") no-repeat;
-                            display: block;
-                            .img(24px);
-                            content: "";
-                        }
-                    }
-
-                    &.has_inwishlist {
-                        border: 1px solid @border_color;
-
-                        .ty-icon-heart {
-                            right: 1px;
-
-                            &:before {
-                                background: url("/images/has_wish.svg") no-repeat;
-                            }
-                        }
                     }
                 }
             }
@@ -415,6 +135,7 @@ Elements: styles
     @media only screen and (max-width: 767px) {
         margin: 20px 0 28px;
     }
+
     .owl-item {
 
         &:first-child {
@@ -443,7 +164,7 @@ Elements: styles
             border: 1px solid @brands_border;
             margin: 0 10px;
             min-height: 66px;
-            .flex(r,c,n,nowrap);
+            .flex(r, c, n, nowrap);
             align-items: center;
 
             @media only screen and (max-width: 767px) {
@@ -455,7 +176,7 @@ Elements: styles
 
         }
     }
-    
+
     .owl-controls {
         margin: 0;
 
@@ -497,17 +218,72 @@ Elements: styles
                 gap: 12px;
             }
 
-            li {
+            & > li {
                 padding: 0;
-                .flex(r, s, n, nowrap);
+                .flex(r, s, n, wrap);
                 gap: 8px;
                 align-items: center;
 
-                &:hover {
+                &:hover, &.active {
 
-                    a {
+                    &.ty-level-0 > a {
                         color: @primary_button;
                         transition: @transition;
+                    }
+
+                    &.icon_discount {
+                        &:before {
+                            background: url("/images/icon_discount.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_new {
+                        &:before {
+                            background: url("/images/new.svg") no-repeat;
+                            background-size: contain;
+                        }
+                    }
+
+                    &.icon_cheese {
+                        &:before {
+                            background: url("/images/icon_cheese1.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_milk {
+                        &:before {
+                            background: url("/images/icon_milk1.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_meat {
+                        &:before {
+                            background: url("/images/icon_meat1.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_ready_food {
+                        &:before {
+                            background: url("/images/icon_ready_food1.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_confectionery {
+                        &:before {
+                            background: url("/images/icon_confectionery1.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_frozen {
+                        &:before {
+                            background: url("/images/icon_frozen1.svg") no-repeat;
+                        }
+                    }
+
+                    &.icon_healthly {
+                        &:before {
+                            background: url("/images/icon_healthly1.svg") no-repeat;
+                        }
                     }
                 }
 
@@ -517,10 +293,55 @@ Elements: styles
                     content: "";
                 }
 
+                &.ty-level-0 {
+
+                    & > .ty-text-links__a {
+                        @media only screen and (max-width: 767px) {
+                            width: 100%;
+                        }
+                    }
+
+                    .ty-text-links {
+                        display: none;
+
+
+                        &.open {
+                            display: flex;
+                        }
+
+                        .ty-text-links__item.ty-level-1 {
+                            margin-left: 44px;
+                            margin-bottom: 16px;
+
+                            @media only screen and (max-width: 767px) {
+                                margin-bottom: 12px;
+                            }
+
+                            &:before {
+                                display: none;
+                            }
+
+                            & > a {
+                                max-width: 100%;
+
+                                &:hover {
+                                    color: @primary_button;
+                                    transition: @transition;
+                                }
+                            }
+
+                            .ty-text-links {
+                                display: none !important;
+                            }
+                        }
+                    }
+                }
+
                 a {
                     .p(16, 400);
                     color: @tertiary_button_color;
                     transition: @transition;
+                    max-width: calc(~"100% - 44px");
 
                     @media only screen and (max-width: 767px) {
                         .p(14, 400);
@@ -538,14 +359,17 @@ Elements: styles
                         .img(24px);
                     }
 
-                    a {
-
+                    & > a.ty-text-links__a {
+                        max-width: 100%;
+                        @media only screen and (max-width: 767px) {
+                            width: auto;
+                        }
                     }
                 }
 
                 &.icon_discount {
                     &:before {
-                        background: url("/images/icon_discount.svg") no-repeat;
+                        background: url("/images/ruble.svg") no-repeat;
                     }
                 }
 
@@ -607,6 +431,10 @@ Elements: styles
     }
 }
 
+.tygh-content {
+    position: relative;
+}
+
 .tygh-content .homepage {
     width: calc(~"100% - 232px");
     margin-left: 21px;
@@ -620,16 +448,18 @@ Elements: styles
         opacity: 0.99;
         //margin-top: 56px;
         margin-top: 39px;
+        margin-bottom: 64px;
 
         @media only screen and (max-width: 767px) {
             margin-top: 12px;
+            margin-bottom: 28px;
         }
 
         & > .row-fluid {
-            .flex(r,s,n,nowrap);
+            .flex(r, s, n, nowrap);
 
             @media only screen and (max-width: 767px) {
-                .flex(c,s,n,nowrap);
+                .flex(c, s, n, nowrap);
             }
 
             &:after, &:before {
@@ -652,14 +482,15 @@ Elements: styles
             }
 
             .swiper-slide {
-                height: 440px!important;
+                height: 440px !important;
 
                 @media only screen and (max-width: 767px) {
-                    height: 155px!important;
+                    height: 155px !important;
 
                     .bg {
                         border-radius: 12px;
                         overflow: hidden;
+
                         picture {
                             img {
                                 object-fit: cover;
@@ -670,6 +501,7 @@ Elements: styles
 
                 .ext_banner__content {
                     justify-content: space-between;
+
                     .ext_banner__content--title {
                         span {
                             color: @banner_color;
@@ -683,13 +515,13 @@ Elements: styles
                             background: @content_bg;
                             padding: 8px 14px;
                             color: @secondary_button;
-                           .p(20,700);
+                            .p(20, 700);
                             display: block;
                             width: max-content;
                             margin-top: 8px;
 
                             @media only screen and (max-width: 767px) {
-                                .p(12,700);
+                                .p(12, 700);
                                 margin-top: 4px;
                                 padding: 2px;
                             }
@@ -708,7 +540,7 @@ Elements: styles
             padding-top: 20px;
 
             @media only screen and (max-width: 767px) {
-                .flex(r,s,n,nowrap);
+                .flex(r, s, n, nowrap);
                 max-width: 100%;
                 margin-left: 0;
                 gap: 12px;
@@ -723,10 +555,10 @@ Elements: styles
                 }
 
                 .swiper-slide {
-                    height: 204px!important;
+                    height: 204px !important;
 
                     @media only screen and (max-width: 767px) {
-                        height: 94px!important;
+                        height: 94px !important;
                         border-radius: @border_radius_s;
                         overflow: hidden;
                     }
@@ -735,14 +567,15 @@ Elements: styles
 
             .homepage-banner_bottom {
                 .swiper-slide {
-                    height: 204px!important;
+                    height: 204px !important;
 
                     @media only screen and (max-width: 767px) {
-                        height: 94px!important;
+                        height: 94px !important;
                         border-radius: @border_radius_s;
                         overflow: hidden;
                     }
                 }
+
                 .ext_banner__content {
                     justify-content: space-between;
                 }
@@ -751,12 +584,12 @@ Elements: styles
     }
 
     .utp_banners {
-        .flex(r,s,n,nowrap);
+        .flex(r, s, n, nowrap);
         margin-top: 50px;
         opacity: 0.99;
 
         @media only screen and (max-width: 767px) {
-            .flex(c,s,n,nowrap);
+            .flex(c, s, n, nowrap);
             margin-top: 28px;
         }
 
@@ -798,7 +631,7 @@ Elements: styles
         }
 
         .ext_banner__content--url {
-            .flex(r,c,n,nowrap);
+            .flex(r, c, n, nowrap);
 
             @media only screen and (max-width: 767px) {
                 margin-top: 0;
@@ -809,12 +642,13 @@ Elements: styles
                 width: max-content;
             }
         }
+
         .utp_banner_left {
             .swiper-slide {
-                height: 500px!important;
+                height: 500px !important;
 
                 @media only screen and (max-width: 767px) {
-                    height: 220px!important;
+                    height: 220px !important;
                 }
 
                 .ext_banner__content {
@@ -829,13 +663,15 @@ Elements: styles
             @media only screen and (max-width: 767px) {
                 padding-top: 20px;
             }
+
             .swiper-slide {
-                height: 500px!important;
+                height: 500px !important;
 
                 @media only screen and (max-width: 767px) {
-                    height: 317px!important;
+                    height: 317px !important;
                 }
             }
+
             .ext_banner__content {
                 justify-content: flex-start;
 

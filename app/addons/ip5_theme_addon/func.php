@@ -26,3 +26,7 @@ function fn_ip5_theme_addon_get_orders_post($params, &$orders) {
         unset($order_info);
     }
 }
+
+function fn_get_current_dispatch(){
+    return $_REQUEST['dispatch'];
+}

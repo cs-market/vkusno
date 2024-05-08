@@ -477,6 +477,12 @@ Elements: styles
                     background: @tertiary_button;
                     min-width: max-content;
                     border-radius: @border_radius_l;
+
+                    .ty-account-info__title-txt {
+                        max-width: 64px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
                 }
 
                 .ty-dropdown-box__content {
@@ -842,6 +848,7 @@ Elements: styles
 
                     .ty-cr-link {
                         margin: 0;
+                        text-align: center;
 
                         a {
                             .p(14, 400);

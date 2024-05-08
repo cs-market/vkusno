@@ -7,7 +7,8 @@
 <div class="ip5_menu_body hidden">
 
     <div class="ip5_menu_top">
-        {include file="addons/geo_maps/blocks/customer_location.tpl"}
+{*        {include file="addons/geo_maps/blocks/customer_location.tpl"}*}
+        <b title="Местоположение покупателя" class="wysiwyg-block-loader cm-block-loader cm-block-loader--r7MU/GOPM/4="></b>
         <img src="{$self_images_dir}/menu_close.jpg" class="ip5_close_btn" alt="" />
     </div>
 

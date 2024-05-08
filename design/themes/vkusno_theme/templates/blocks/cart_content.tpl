@@ -120,8 +120,9 @@
                             {if $settings.Checkout.checkout_redirect != "Y"}
 {*                                <div class="ty-float-right">*}
                                 <div class="ip5_btn">
-                                    {include file="buttons/proceed_to_checkout.tpl" but_text=__("checkout")}
-                                        <span>{include file="common/price.tpl" value=$_total|default:$cart.total}</span>
+{*                                    {include file="buttons/proceed_to_checkout.tpl" but_text=__("checkout")}*}
+                                        <a href="{"checkout.cart"|fn_url}" rel="nofollow" class="ty-btn ty-btn__primary">{__("checkout")}</a>
+                                        <span>{include file="common/price.tpl" value=$smarty.session.cart.display_subtotal}</span>
                                 </div>
 
 {*                                </div>*}

@@ -55,7 +55,7 @@ Elements: styles
             padding: 20px 36px;
 
             .ty-control-group {
-                label {
+                label:not(.ty-product-review-rate__stars-label) {
                     padding: 0;
                     margin-bottom: 10px;
                     .p(16,400);
@@ -75,6 +75,12 @@ Elements: styles
                         transition: @transition;
                     }
                 }
+            }
+        }
+
+        &.ty-owl-previewer {
+            .object-container {
+                padding: 0;
             }
         }
     }

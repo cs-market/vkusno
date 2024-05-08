@@ -35,3 +35,47 @@ msgstr "Оболочка для блока Хиты продаж"
 msgctxt "Languages::ip5__mainbox_simple_on_products"
 msgid "ip5__mainbox_simple_on_products"
 msgstr "Оболочка для блоков без кнопки"
+
+msgctxt "Languages::ip5_theme_addon.reset_all"
+msgid "ip5_theme_addon.reset_all"
+msgstr "Сбросить все"
+
+msgctxt "Languages::ip5_theme_addon.shipping_to"
+msgid "ip5_theme_addon.shipping_to"
+msgstr "Доставим завтра до 12:00"
+
+msgctxt "Languages::ip5_theme_addon.to_pay"
+msgid "ip5_theme_addon.to_pay"
+msgstr "К оплате"
+
+msgctxt "Languages::ip5_theme_addon.delivery_time"
+msgid "ip5_theme_addon.delivery_time"
+msgstr "Вы можете выбрать доставку на 5 дней вперед"
+
+msgctxt "Languages::ip5_theme_addon.text_submit_checkout_button"
+msgid "ip5_theme_addon.text_submit_checkout_button"
+msgstr "Перейти к оплате"
+
+msgctxt "Languages::ip5_theme_addon.order_from"
+msgid "ip5_theme_addon.order_from"
+msgstr "Заказ от"
+
+msgctxt "Languages::ip5_theme_addon.in"
+msgid "ip5_theme_addon.in"
+msgstr "в"
+
+msgctxt "Languages::ip5_theme_addon.edit_order"
+msgid "ip5_theme_addon.edit_order"
+msgstr "Изменить заказ"
+
+msgctxt "Languages::ip5_theme_addon.delivery_details"
+msgid "ip5_theme_addon.delivery_details"
+msgstr "Данные о доставке"
+
+msgctxt "Languages::ip5_theme_addon.paid"
+msgid "ip5_theme_addon.paid"
+msgstr "Оплачено"
+
+msgctxt "Languages::ip5_theme_addon.save"
+msgid "ip5_theme_addon save"
+msgstr "Сохранить изменения"
