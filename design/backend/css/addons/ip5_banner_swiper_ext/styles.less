@@ -1,0 +1,23 @@
+#addon_ip5_banner_swiper_extinstalled,
+#addon_ip5_banner_swiper_ext {
+    background-color: @tableBackgroundAccent;
+    
+    .addons-addon-icon__wrapper {
+        position: relative;
+        box-shadow: none;
+
+        &:before {
+            content: "";
+            position: absolute;
+            background-image: url('../../../media/images/addons/ip5_banner_swiper_ext/addon_icon.svg');
+            background-repeat: no-repeat;
+            background-size: contain;
+            width: 50px;
+            height: 48px;
+        }
+        
+        .addons-addon-icon__image {
+            opacity: 0;
+        }
+    }
+}

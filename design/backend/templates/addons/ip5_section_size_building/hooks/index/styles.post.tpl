@@ -1,0 +1,1 @@
+{style src="addons/ip5_section_size_building/styles.less"}

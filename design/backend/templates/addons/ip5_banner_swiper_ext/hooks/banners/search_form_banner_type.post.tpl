@@ -1,0 +1,2 @@
+<option {if $banner.type == "IP5BannerTypes::IP5_GRAPHIC"|enum}selected="selected"{/if} value="{"IP5BannerTypes::IP5_GRAPHIC"|enum}">{__("ip5_banner.type.graphic")}</option>
+<option {if $banner.type == "IP5BannerTypes::IP5_VIDEO"|enum}selected="selected"{/if} value="{"IP5BannerTypes::IP5_VIDEO"|enum}">{__("ip5_banner.type.video")}</option>
