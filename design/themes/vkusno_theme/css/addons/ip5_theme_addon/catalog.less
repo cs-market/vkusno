@@ -646,6 +646,12 @@ Elements: styles
         .flex(r,s,n,nowrap);
         gap: 8px;
 
+        @media only screen and (max-width: 767px) {
+            &:nth-child(n+2) {
+                display: none;
+            }
+        }
+
         .ty-sort-dropdown {
 
             .ty-sort-dropdown__wrapper {
@@ -818,6 +824,12 @@ Elements: styles
             @media only screen and (max-width: 767px) {
                 margin: 0;
                 border-radius: 12px 4px;
+            }
+
+            .ty-no-image {
+                height: auto!important;
+                aspect-ratio: auto 270 / 235;
+                background: transparent;
             }
 
             .ty-product-labels {

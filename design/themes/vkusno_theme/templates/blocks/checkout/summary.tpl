@@ -10,7 +10,7 @@
 
 
             {if ($cart.subtotal_discount|floatval)}
-                <tr class="ty-checkout-summary__order_discount">
+                <tr class="ty-checkout-summary__discount">
                     <td class="ty-checkout-summary__item">{__("discounts")}</td>
                     <td class="ty-checkout-summary__item ty-right discount-price" data-ct-checkout-summary="order-discount">
                         <span>{include file="common/price.tpl" value="-`$cart.subtotal_discount`"}</span>

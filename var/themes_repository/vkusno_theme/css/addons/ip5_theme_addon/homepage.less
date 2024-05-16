@@ -29,7 +29,7 @@ Elements: styles
         }
 
         .view_all_filling {
-            a {
+            p {
                 background: @tertiary_button;
                 color: @tertiary_button_color;
                 transition: @transition;
@@ -64,14 +64,14 @@ Elements: styles
     .ty-mainbox-simple-body {
         .grid-list {
             [class^="ty-column"] {
-                padding-bottom: 0;
+                //padding-bottom: 0;
 
                 @media only screen and (max-width: 767px) {
-                    padding-bottom: 0;
+                    padding-bottom: 11px;
 
-                    &:nth-child(4) {
-                        display: none;
-                    }
+                    //&:nth-child(4) {
+                    //    display: none;
+                    //}
                 }
             }
         }
@@ -79,10 +79,10 @@ Elements: styles
 }
 
 .ip5_bestsellers {
-    margin-top: 84px;
+    margin-top: 56px;
 
     @media only screen and (max-width: 767px) {
-        margin-top: 28px;
+        margin-top: 17px;
     }
 }
 

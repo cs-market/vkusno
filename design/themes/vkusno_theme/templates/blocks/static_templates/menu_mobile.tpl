@@ -18,7 +18,8 @@
         <h2 class="ty-mainbox-simple-title">
             {__("catalog")}
         </h2>
-        <b title="Каталог" class="wysiwyg-block-loader cm-block-loader cm-block-loader--0ZJjx5aGHyc="></b>
+{*        <b title="Каталог" class="wysiwyg-block-loader cm-block-loader cm-block-loader--0ZJjx5aGHyc="></b>*}
+        <b title="Каталог" class="wysiwyg-block-loader cm-block-loader cm-block-loader--z5eML5BqDSg="></b>
     </div>
 
 </div>

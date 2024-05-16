@@ -90,7 +90,8 @@
     </div>
 
     <div class="top-quick-links">
-        <b title="Быстрые ссылки" class="wysiwyg-block-loader cm-block-loader cm-block-loader--ROPm9DlRdo8="></b>
+{*        <b title=""Быстрые ссылки class="wysiwyg-block-loader cm-block-loader cm-block-loader--ROPm9DlRdo8="></b>*}
+        <b title="Быстрые ссылки" class="wysiwyg-block-loader cm-block-loader cm-block-loader--+khNdqP1AjM="></b>
     </div>
 
     {include file="addons/call_requests/blocks/call_request.tpl"}
