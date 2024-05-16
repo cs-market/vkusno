@@ -314,17 +314,15 @@
         $(document).ajaxSuccess(function () {
             if ($(window).width() <= 767) {
                 if ($('.ip5_checkout_content form.litecheckout__payment-methods .ip5-total_content .ip5-total_body .ty-checkout-summary').length == 0) {
-                    $(".ip5_checkout_content form.litecheckout__payment-methods .ip5-total_content .ip5-total_body").append($('.ty-checkout-summary'));
+                    $(".ip5_checkout_content form.litecheckout__payment-methods .help").append($('.ty-checkout-summary'));
+
                 }
             }
         });
 
 
         if ($(window).width() <= 767) {
-            $('.ip5_checkout_content .span4.ip5_total *').remove();
-        }
-        if ($(window).width() > 767) {
-            $('.ip5_checkout_content .litecheckout__group .ip5-total_content *').remove();
+            $('.ip5_checkout_content form.litecheckout__payment-methods .ip5-total_content .ip5-total_body .ty-checkout-summary').append($('.ip5_total .ty-checkout-summary'));
         }
     }
 
@@ -450,5 +448,61 @@
             }
         }
     }
+
+
+    if ($('.ip5-mainbox-simple-container .grid-list').length > 0) {
+
+        if ($(window).width() > 767) {
+
+            $('.ip5-mainbox-simple-container').each(function () {
+                var $showMore = $(this).find('.ip5-simple-container__title .view_all_filling');
+                var gridList= $(this).find('.ty-mainbox-simple-body .grid-list');
+
+                gridList.each(function () {
+                    var $gridItems = $(this).find('.ty-column4');
+
+                    if ($gridItems.length > 4) {
+                        var $hiddenItems = $gridItems.slice(4);
+                        $hiddenItems.hide();
+                        $showMore.css({'display': "flex"});
+                        $showMore.click(function(){
+                            $hiddenItems.slideToggle(function(){
+                                $(this).is(':visible');
+                                $showMore.hide();
+                            });
+                        });
+                    } else {
+                        $showMore.hide();
+                    }
+                });
+            });
+        }else {
+            $('.ip5-mainbox-simple-container').each(function () {
+                var $showMore = $(this).find('.ip5-simple-container__title .view_all_filling');
+                var gridList= $(this).find('.ty-mainbox-simple-body .grid-list');
+
+                gridList.each(function () {
+                    var $gridItems = $(this).find('.ty-column4');
+
+                    if ($gridItems.length > 3) {
+                        var $hiddenItems = $gridItems.slice(3);
+                        $hiddenItems.hide();
+                        $showMore.css({'display': "flex"});
+                        $showMore.click(function(){
+                            $hiddenItems.slideToggle(function(){
+                                $(this).is(':visible');
+                                $showMore.hide();
+                            });
+                        });
+                    } else {
+                        $showMore.hide();
+                    }
+                });
+            });
+        }
+    }
+
+
+
 
 }(Tygh, Tygh.$));
