@@ -11,7 +11,7 @@
                     {/if}
                     {/hook}
                 </h2>
-                <div class="ty-btn ty-btn__text view_all_filling"><a href="{__("sale_all_pages_link")}">{__("sale_all_pages")}<span class="vk-arrow_right"></span></a></div>
+                <div class="ty-btn ty-btn__text view_all_filling"><p>{__("sale_all_pages")}<span class="vk-arrow_right"></span></p></div>
             </div>
         {/if}
         <div class="ty-mainbox-simple-body">{$content nofilter}</div>
