@@ -16,6 +16,14 @@ $schema['banners']['templates']['addons/aurora/blocks/grid.tpl'] = [
         'number_of_columns' =>  array (
             'type' => 'input',
             'default_value' => 3
+        ),
+        'limit' =>  array (
+            'type' => 'input',
+            'default_value' => 0
+        ),
+        'section_name' =>  array (
+            'type' => 'checkbox',
+            'default_value' => 'N'
         )
     )
 ];
@@ -41,6 +49,9 @@ $schema['mobile_app_links'] = [
     ),
     'wrappers' => 'blocks/wrappers'
 ];
+
+$schema['products']['settings']['hide_add_to_cart_button']['default_value'] = 'N';
+
 
 $schema['vendor_logo']['content']['vendor_info']['function'] = ['fn_blocks_aurora_get_vendor_info'];
 

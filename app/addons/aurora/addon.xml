@@ -17,7 +17,11 @@
         <item lang="ru" id="app_gallery">App gallery</item>
         <item lang="ru" id="block_mobile_app_links">Ссылки мобильного приложения</item>
         <item lang="ru" id="mobile_app_links">Ссылки мобильного приложения</item>
+        <item lang="ru" id="about_product">О товаре</item>
+        <item lang="ru" id="cart_text">Корзина</item>
         <item lang="ru" id="sorting">Сортировка</item>
+        <item lang="ru" id="low_stock">Очень мало на остатках</item>
+        <item lang="ru" id="add_all_to_cart">Добавить все в корзину</item>
     </language_variables>
     <queries>
         <item>ALTER TABLE `?:companies` ADD `app_store` VARCHAR(255) NOT NULL DEFAULT '';</item>
@@ -29,4 +33,22 @@
         <item>ALTER TABLE `?:companies` ADD `app_gallery` VARCHAR(255) NOT NULL DEFAULT '';</item>
         <item for="uninstall">ALTER TABLE `?:companies` DROP `app_store`;</item>
     </queries>
+    <settings>
+        <sections>
+            <section id="general">
+                <items>
+                    <item id="dynamic_quantity">
+                        <type>checkbox</type>
+                        <name>Динамическое поле количества</name>
+                        <default_value>Y</default_value>
+                    </item>
+                    <item id="inline_controls">
+                        <type>checkbox</type>
+                        <name>Элементы управления сетки товаров в строку</name>
+                        <default_value>Y</default_value>
+                    </item>
+                </items>
+            </section>
+        </sections>
+    </settings>
 </addon>

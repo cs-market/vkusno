@@ -95,31 +95,31 @@
     });
 
 
-    $.ceEvent('on', 'ce.commoninit', function() {
-        $('.ty-btn__add-to-cart').click(function() {
-            $(this).closest('.cm-product-controls').addClass('in-cart').find('.ty-grid-list__qty').addClass('ty-cart-content__qty');
-        });
-    });
+
+    // $.ceEvent('on', 'ce.commoninit', function() {
+    //     $('.ty-btn__add-to-cart').click(function() {
+    //         $(this).closest('.cm-product-controls').addClass('in-cart').find('.ty-grid-list__qty').addClass('ty-cart-content__qty');
+    //     });
+    // });
 
 
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     const valueChangerLinks = document.querySelectorAll('.ty-product-block__buy .ty-value-changer__increase, .ty-product-block__buy .ty-value-changer__decrease');
+    //     const recalculateButton = document.querySelector('.ty-product-block__buy .ty-btn--recalculate-cart');
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const valueChangerLinks = document.querySelectorAll('.ty-product-block__buy .ty-value-changer__increase, .ty-product-block__buy .ty-value-changer__decrease');
-        const recalculateButton = document.querySelector('.ty-product-block__buy .ty-btn--recalculate-cart');
+    //     var timeoutId;
 
-        var timeoutId;
+    //     function handleClick() {
+    //         clearTimeout(timeoutId);
+    //         timeoutId = setTimeout(() => {
+    //             recalculateButton.click();
+    //         }, 1000);
+    //     }
 
-        function handleClick() {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                recalculateButton.click();
-            }, 1000);
-        }
-
-        valueChangerLinks.forEach(link => {
-            link.addEventListener('click', handleClick);
-        });
-    });
+    //     valueChangerLinks.forEach(link => {
+    //         link.addEventListener('click', handleClick);
+    //     });
+    // });
 
 
     $(document).on("click", ".ip5_filter_btn", function (event) {

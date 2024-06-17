@@ -13,31 +13,29 @@
 
 defined('BOOTSTRAP') or die('Access denied');
 
-$cart = &Tygh::$app['session']['cart'];
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if ($mode == 'update_qty') {
+    return [CONTROLLER_STATUS_OK];
+}
 
-        if (!empty($_REQUEST['product_data'])) {
-            $cart_products = array_column($cart['products'], 'item_id', 'product_id');
-            $update = [];
-            foreach ($_REQUEST['product_data'] as $p_id => $data) {
-                $key = $cart_products[$p_id] ?? $p_id;
-                $update[$key] = $data;
+if ($mode == 'manage') {
+    $view = Tygh::$app['view'];
+
+    if ($logs = $view->getTemplateVars('logs')) { // Repay is allowed
+        foreach($logs as &$log) {
+            if ($log['type'] == 'general' && $log['action'] == 'debug') {
+                foreach($log['content'] as &$data) {
+                    $v = unserialize($data);
+                    if (is_array($v)) {
+                        $output = '<div><ol style="font-family: Courier; font-size: 12px; border: 1px solid #dedede; background-color: #efefef; float: left; padding-right: 20px;">';
+                        $v = htmlspecialchars(print_r($v, true));
+                        if ($v == '') { $v = ' '; }
+                        $output .= '<li><pre>' . $v . "\n" . '</pre></li></ol></div><div style="clear:left;"></div>';
+                        $data = $output;
+                    }
+                }
             }
-
-            $res = fn_add_product_to_cart($update, $cart, $auth, true);
-            fn_save_cart_content($cart, $auth['user_id']);
         }
 
-        unset($cart['product_groups']);
-
-        // Recalculate cart when updating the products
-        if (!empty($cart['chosen_shipping'])) {
-            $cart['calculate_shipping'] = true;
-        }
-        $cart['recalculate'] = true;
-
-        return [CONTROLLER_STATUS_OK, 'checkout.' . $_REQUEST['redirect_mode']];
+        $view->assign('logs', $logs);
     }
 }

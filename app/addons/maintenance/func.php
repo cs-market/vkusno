@@ -1,14 +1,39 @@
 <?php
 
 use Tygh\Registry;
-use Tygh\Enum\SiteArea;
+use Tygh\Settings;
 use Tygh\Enum\UsergroupTypes;
 use Tygh\Enum\YesNo;
 use Tygh\Enum\ObjectStatuses;
-use Tygh\Enum\UserTypes;
 use Tygh\Navigation\LastView\Backend;
 
 defined('BOOTSTRAP') or die('Access denied');
+
+include_once(__DIR__ . '/hooks.php');
+
+function fn_maintenance_install()
+{
+    $setting = Settings::instance()->getSettingDataByName('log_type_general');
+
+    if (empty($setting['variants']['debug'])) {
+        $setting_id = $setting['object_id'];
+        $variant_id = Settings::instance()->updateVariant(array(
+            'object_id'  => $setting_id,
+            'name'       => 'debug',
+            'position'   => 3,
+        ));
+
+        $description = array(
+            'object_id' => $variant_id,
+            'object_type' => Settings::VARIANT_DESCRIPTION,
+            'lang_code' => 'ru',
+            'value' => 'Отладка'
+        );
+        Settings::instance()->updateDescription($description);
+    }
+
+    return true;
+}
 
 /* ADDON SETTINGS */
 function fn_settings_variants_addons_maintenance_service_usergroups() {
@@ -16,119 +41,11 @@ function fn_settings_variants_addons_maintenance_service_usergroups() {
 }
 /* /ADDON SETTINGS */
 
-/* HOOKS */
-function fn_maintenance_pre_add_to_cart($product_data, &$cart, $auth, $update) {
-    $cart['skip_notification'] = true;
+
+function fn_debug_log_event($data) {
+    $data['backtrace'] = debug_backtrace();
+    fn_log_event('general', 'debug', $data);
 }
-
-function fn_maintenance_update_storage_usergroups_pre(&$storage_data) {
-    $storage_data['usergroup_ids'] = fn_maintenance_get_usergroup_ids($storage_data['usergroup_ids']);
-}
-
-function fn_maintenance_update_product_prices($product_id, &$_product_data, $company_id, $skip_price_delete, $table_name, $condition) {
-    foreach ($_product_data['prices'] as &$v) {
-        $v['product_id'] = $product_id;
-        $v['lower_limit'] = $v['lower_limit'] ?? 1;
-        if (isset($v['usergroup_id']) && !is_numeric($v['usergroup_id'])) {
-            list($v['usergroup_id']) = fn_maintenance_get_usergroup_ids($v['usergroup_id']);
-        }
-    }
-}
-
-function fn_maintenance_update_product_pre(&$product_data) {
-    if (isset($product_data['usergroup_ids']) && !empty($product_data['usergroup_ids'])) {
-        $product_data['usergroup_ids'] = fn_maintenance_get_usergroup_ids($product_data['usergroup_ids']);
-    }
-}
-
-function fn_maintenance_update_profile($action, $user_data, $current_user_data) {
-    if ((($action == 'add' && SiteArea::isStorefront(AREA)) || defined('API')) && !empty($user_data['usergroup_ids'])) {
-        $user_data['usergroup_ids'] = fn_maintenance_get_usergroup_ids($user_data['usergroup_ids']);
-        db_query('DELETE FROM ?:usergroup_links WHERE user_id = ?i', $user_data['user_id']);
-        foreach ($user_data['usergroup_ids'] as $ug_id) {
-            fn_change_usergroup_status(ObjectStatuses::ACTIVE, $user_data['user_id'], $ug_id);
-        }
-    }
-}
-
-function fn_maintenance_get_promotions($params, &$fields, $sortings, &$condition, $join, $group, $lang_code) {
-    if (defined('ORDER_MANAGEMENT') && !empty($params['promotion_id'])) {
-        return;
-    }
-    if (!empty($params['fields'])) {
-        if (!is_array($params['fields'])) {
-            $params['fields'] = explode(',', $params['fields']);
-        }
-        $fields = $params['fields'];
-    }
-    if (!empty($params['exclude_promotion_ids'])) {
-        if (!is_array($params['exclude_promotion_ids'])) $params['exclude_promotion_ids'] = [$params['exclude_promotion_ids']];
-        $condition .= db_quote(' AND ?:promotions.promotion_id NOT IN (?a)', $params['exclude_promotion_ids']);
-    }
-}
-
-function fn_maintenance_dispatch_assign_template($controller, $mode, $area, &$controllers_cascade) {
-    $root_dir = Registry::get('config.dir.root') . '/app';
-    $addon_dir = Registry::get('config.dir.addons');
-    $addons = (array) Registry::get('addons');
-    $area_name = fn_get_area_name($area);
-    foreach ($controllers_cascade as &$ctrl) {
-        $path = str_replace([$root_dir, '/controllers'], ['', ''], $ctrl);
-        foreach ($addons as $addon_name => $data) {
-            if ($data['status'] == 'A') {
-                $dir = $addon_dir . $addon_name . '/controllers/overrides';
-                if (is_readable($dir . $path)) {
-                    $ctrl = $dir . $path;
-                }
-            }
-        }
-    }
-    unset($crtl);
-}
-
-function fn_maintenance_check_permission_manage_profiles(&$result, $user_type) {
-    $can_manage_profiles = true;
-
-    if (Registry::get('runtime.company_id')) {
-        $can_manage_profiles = (in_array($user_type, [UserTypes::CUSTOMER, UserTypes::VENDOR])) && Registry::get('runtime.company_id');
-    }
-
-    $result = $can_manage_profiles;
-}
-
-function fn_maintenance_check_rights_delete_user($user_data, $auth, &$result) {
-    $result = true;
-
-    if (
-        ($user_data['is_root'] == 'Y' && !$user_data['company_id']) // root admin
-        || (!empty($auth['user_id']) && $auth['user_id'] == $user_data['user_id']) // trying to delete himself
-        || (Registry::get('runtime.company_id') && $user_data['is_root'] == 'Y') // vendor root admin
-        || (Registry::get('runtime.company_id') && fn_allowed_for('ULTIMATE') && $user_data['company_id'] != Registry::get('runtime.company_id')) // user from other store
-    ) {
-        $result = false;
-    }
-}
-
-function fn_maintenance_get_users($params, $fields, $sortings, &$condition, $join, $auth) {
-    if ((!isset($params['user_type']) || UserTypes::isAdmin($params['user_type'])) && fn_is_restricted_admin(['user_type' => $auth['user_type']])) {
-        $condition['wo_root_admins'] .= db_quote(' AND is_root != ?s ', YesNo::YES);
-    }
-}
-
-function fn_maintenance_mailer_create_message_before($_this, &$message, $area, $lang_code, $transport, $builder) {
-    // DO NOT TRY TO SEND EMAILS TO @example.com
-    if (!empty($message['to'])) {
-        if (is_array($message['to'])) {
-            $message['to'] = array_filter($message['to'], function($v) {
-                return strpos($v, '@example.com') === false;
-            });
-        } elseif (is_string($message['to'])) {
-            $message['to'] = (strpos($v, '@example.com') === false) ? $message['to'] : '';
-        }
-    }
-}
-
-/* END HOOKS */
 
 function fn_maintenance_promotion_get_dynamic($promotion_id, $promotion, $condition, &$cart, &$auth = NULL) {
     if ($condition == 'catalog_once_per_customer') {
@@ -170,7 +87,8 @@ function fn_maintenance_get_usergroup_ids($data, $without_status = true) {
     $set_delimiter = ',';
     $return = [];
     static $usergroup_cache = [];
-    $_cache_key = md5($data);
+    $_cache_str = is_array($data) ? serialize($data) : $data;
+    $_cache_key = md5($_cache_str);
     if (empty($usergroup_cache[$_cache_key])) {
         if (is_array($data)) {
             $usergroups = $data;
@@ -254,15 +172,14 @@ function fn_delete_notification_by_message($message) {
 
     if (!empty($notifications)) {
         foreach ($notifications as $key => $data) {
-            if ($data['message'] == $message) {
+            if ($data['message'] == $message || $data['title'] == $message) {
                 unset($notifications[$key]);
             }
         }
     }
 }
 
-function fn_init_addon_override_controllers($controller, $area = AREA)
-{
+function fn_init_addon_override_controllers($controller, $area = AREA) {
     $controllers = array();
     static $addons = array();
 
@@ -434,14 +351,71 @@ function fn_exim_get_last_view_users_count()
     return $last_view_results['total_items'];
 }
 
-function fn_maintenance_get_payments_pre(&$params) {
-    if (defined('ORDER_MANAGEMENT')) {
-        $params['status'] = 'A';
+function fn_maintenance_build_search_condition($fields, $q, $match = 'all') {
+    $condition = '';
+
+    $q = trim($q);
+
+    if ($match == 'any') {
+        $query_pieces = fn_explode(' ', $q);
+        $search_type = ' OR ';
+    } elseif ($match == 'all') {
+        $query_pieces = fn_explode(' ', $q);
+        $search_type = ' AND ';
+    } else {
+        $query_pieces = [$q];
+        $search_type = '';
     }
+
+    $query_pieces = array_filter($query_pieces, 'fn_string_not_empty');
+
+    if (!is_array($fields)) {
+        $fields = [$fields];
+    }
+
+    $search_conditions = [];
+
+    foreach ($fields as $field) {
+        $tmp = [];
+        foreach ($query_pieces as $piece) {
+            $tmp[] = db_quote("$field LIKE ?l", '%' . $piece . '%');
+        }
+        $search_conditions[] = ' (' . implode($search_type, $tmp) . ') ';
+    }
+
+    $_cond = implode(' OR ', $search_conditions);
+
+    if (!empty($search_conditions)) {
+        $condition = ' AND (' . $_cond . ') ';
+    }
+
+    return $condition;
 }
 
-function fn_maintenance_shippings_get_shippings_list_conditions($group, $shippings, $fields, $join, &$condition, $order_by) {
-    if (defined('ORDER_MANAGEMENT')) {
-        $condition .= " AND (" . fn_find_array_in_set(\Tygh::$app['session']['customer_auth']['usergroup_ids'], '?:shippings.usergroup_ids', true) . ")";
+function fn_get_headers($key = '')
+{
+    $result = array();
+
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+
+        foreach ($headers as $name => $value) {
+            $result[$name] = $value;
+        }
+    } else {
+        foreach ($_SERVER as $name => $value) {
+            if (strncmp($name, 'HTTP_', 5) === 0) {
+                $name = strtolower(str_replace('_', '-', substr($name, 5)));
+                $result[$name] = $value;
+            }
+        }
     }
+
+    foreach ($result as $name => $value) {
+        $valid_name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
+        unset($result[$name]);
+        $result[$valid_name] = $value;
+    }
+
+    return empty($key) ? $result : (array_key_exists($key, $result) ? $result[$key] : '');
 }

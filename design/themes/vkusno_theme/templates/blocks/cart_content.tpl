@@ -17,6 +17,8 @@
         </div>
         <div id="dropdown_{$dropdown_id}"
              class="cm-popup-box ty-dropdown-box__content ty-dropdown-box__content--cart hidden">
+            <form action="{""|fn_url}" method="post" name="product_form_minicart" enctype="multipart/form-data" class="cm-disable-empty-files cm-ajax cm-ajax-status-middle {if $form_meta}{$form_meta}{/if}">
+            <input type="hidden" name="result_ids" value="cart_status*,wish_list*,checkout*,account_info*">
             {hook name="checkout:minicart"}
                 <div
                     class="cm-cart-content {if $block.properties.products_links_type == "thumb"}cm-cart-content-thumb{/if} {if $block.properties.display_delete_icons == "Y"}cm-cart-content-delete{/if}">
@@ -132,6 +134,13 @@
 
                 </div>
             {/hook}
+            {include file="buttons/update_cart.tpl"
+                 but_id="button_cart_`$obj_id`"
+                 but_meta="ty-btn--recalculate-cart hidden hidden-phone hidden-tablet"
+                 but_name="dispatch[checkout.update_qty]"
+            }
         </div>
+        </form>
         <!--cart_status_{$dropdown_id}--></div>
+
 {/hook}

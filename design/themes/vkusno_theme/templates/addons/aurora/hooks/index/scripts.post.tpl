@@ -1,13 +1,12 @@
-{script src="js/addons/aurora/bootstrap-toggle.js"}
-{script src="js/addons/aurora/malma.js"}
 <script type="text/javascript">
     (function(_, $) {
         $.ceEvent('on', 'ce.commoninit', function(context) {
             {if $addons.aurora.dynamic_quantity == "YesNo::YES"|enum}
             $('.ty-btn__add-to-cart').click(function() {
                 dynamic_product = $(this).closest('.ty-dynamic-quantity');
+                $('.cm-product-controls', dynamic_product).addClass('ty-product-in-cart');
                 if (dynamic_product.length) {
-                    dynamic_product.addClass('ty-product-in-cart')
+                    dynamic_product.addClass('ty-product-in-cart');
                     qty_control = $('.ty-grid-list__qty', dynamic_product);
                     if (!qty_control.length) {
                         qty_control = $('.ty-product-block__qty', dynamic_product);
@@ -18,12 +17,7 @@
                 }
             });
             {/if}
-            $('.ty-btn__add-to-wish', context).click(function() {
-                $('.ty-icon', $(this)).toggleClass('ty-icon-aurora-star-full').toggleClass('ty-icon-aurora-star-empty');
-            });
-            $('.cm-autoclick').click();
         });
-
         $.ceEvent('on', 'dispatch_event_pre', function (e, jelm, processed) {
             if (e.type !== 'click') {
                 return;

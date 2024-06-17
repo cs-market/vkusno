@@ -1,7 +1,7 @@
 {if $products}
 
     {script src="js/tygh/exceptions.js"}
-    {script src="js/tygh/cart_content.js"}
+    {if $addons.aurora.dynamic_quantity == "YesNo::YES"|enum}{script src="js/addons/aurora/cart_content.js"}{/if}
 
     {if !$no_pagination}
         {include file="common/pagination.tpl"}
@@ -40,6 +40,8 @@
                             {include file="common/product_data.tpl" product=$product}
 
                             <div class="ty-grid-list__item ty-quick-view-button__wrapper
+                                {if $product.dynamic_quantity == "YesNo::YES"|enum} ty-dynamic-quantity {/if}
+                                {if $product.in_cart} ty-product-in-cart {/if}
                                 {if $settings.Appearance.enable_quick_view == 'Y' || $show_features} ty-grid-list__item--overlay{/if}">
                                 {assign var="form_open" value="form_open_`$obj_id`"}
                                 {$smarty.capture.$form_open nofilter}
@@ -101,11 +103,11 @@
 
 
                                         {capture name="product_multicolumns_list_control_data_wrapper"}
-                                            <div class="ty-grid-list__control cm-product-controls {if $obj_id|in_array:$cart_products}in-cart{/if} {if $product.is_weighted == 'Y'}is-weighted{/if}">
+                                            <div class="ty-grid-list__control cm-product-controls {if $product.in_cart} ty-product-in-cart {/if}">
                                                 {hook name="products:product_multicolumns_list_control_data_wrapper"}
                                                 {assign var="qty" value="qty_`$obj_id`"}
                                                 {if $smarty.capture.$qty|trim}
-                                                    <div class="ty-grid-list__qty {if $obj_id|in_array:$cart_products}ty-cart-content__qty{/if}">
+                                                    <div class="ty-grid-list__qty {if $product.in_cart == "YesNo::YES"|enum}ty-cart-content__qty{/if}">
                                                         {$smarty.capture.$qty nofilter}
                                                     </div>
                                                     {include file="buttons/update_cart.tpl"

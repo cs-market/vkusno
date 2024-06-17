@@ -18,4 +18,13 @@ $schema['export_fields']['Product promotions'] = array(
     'process_get' => array('fn_exim_orders_with_items_get_product_promotions', '#this'),
 );
 
+$schema['export_fields']['Tracking link'] = array(
+    'db_field' => 'tracking_link',
+    'linked' => true,
+);
+$schema['export_fields']['Device ID'] = array(
+    'db_field' => 'device_id',
+    'linked' => true,
+);
+
 return $schema;

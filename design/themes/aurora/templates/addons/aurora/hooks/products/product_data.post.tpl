@@ -97,7 +97,7 @@
                     {if $settings.Appearance.quantity_changer == "Y"}
                         <a class="cm-increase ty-value-changer__increase">&#43;</a>
                     {/if}
-                    <input type="text" size="5" class="ty-value-changer__input cm-amount" id="qty_count_{$obj_prefix}{$obj_id}" name="product_data[{$obj_id}][amount]" value="{$default_amount}"{if $product.qty_step > 1} data-ca-step="{$product.qty_step}"{/if} data-ca-min-qty="{if $product.min_qty > 1}{$product.min_qty}{else}1{/if}" />
+                    <input type="text" size="5" class="ty-value-changer__input cm-amount" id="qty_count_{$obj_prefix}{$obj_id}" name="product_data[{$obj_id}][amount]" value="{$default_amount}" data-ca-val="{$default_amount}" {if $product.qty_step > 1} data-ca-step="{$product.qty_step}"{/if} data-ca-min-qty="{if $addons.aurora.dynamic_quantity == "YesNo::YES"|enum}0{elseif $product.min_qty > 1}{$product.min_qty}{else}1{/if}" />
                     {if $settings.Appearance.quantity_changer == "Y"}
                         <a class="cm-decrease ty-value-changer__decrease">&minus;</a>
                     {/if}
@@ -262,3 +262,18 @@
 {*<!--add_to_cart_update_{$obj_prefix}{$obj_id}-->*}</div>
 {/if}
 {/capture}
+
+{capture name="form_open_`$obj_id`"}
+{if !$hide_form}
+<form action="{""|fn_url}" method="post" name="product_form_{$obj_prefix}{$obj_id}" enctype="multipart/form-data" class="cm-disable-empty-files {if $is_ajax} cm-ajax cm-ajax-full-render cm-ajax-status-middle{/if} {if $form_meta}{$form_meta}{/if}">
+<input type="hidden" name="result_ids" value="cart_status*,checkout*,account_info*" />
+{if !$stay_in_cart}
+<input type="hidden" name="redirect_url" value="{$redirect_url|default:$config.current_url}" />
+{/if}
+<input type="hidden" name="product_data[{$obj_id}][product_id]" value="{$product.product_id}" />
+{/if}
+{/capture}
+{if $no_capture}
+    {assign var="capture_name" value="form_open_`$obj_id`"}
+    {$smarty.capture.$capture_name nofilter}
+{/if}

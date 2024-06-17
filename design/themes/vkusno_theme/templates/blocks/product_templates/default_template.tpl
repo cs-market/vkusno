@@ -1,7 +1,12 @@
 {script src="js/tygh/exceptions.js"}
-{script src="js/tygh/cart_content.js"}
+{if $product.dynamic_quantity == "YesNo::YES"|enum}{script src="js/addons/aurora/cart_content.js"}{/if}
+
 <div class="ty-product-block ty-product-detail">
-    <div class="ty-product-block__wrapper clearfix">
+    <div class="ty-product-block__wrapper 
+    {if $product.in_cart} ty-product-in-cart {/if}
+    {if $product.is_weighted == "YesNo::YES"|enum} ty-weighted-product {/if}
+    {if $product.dynamic_quantity == "YesNo::YES"|enum} ty-dynamic-quantity {/if}
+    clearfix">
     {hook name="products:view_main_info"}
         {if $product}
             {assign var="obj_id" value=$product.product_id}
@@ -56,8 +61,8 @@
                 </div>
                 {/if}
                 {/hook}
-                {$cart_products = $smarty.session.cart.products|array_column:'product_id'}
-                <div class="ty-product-block__buy cm-product-controls {if $obj_id|in_array:$cart_products}in-cart{/if}">
+
+                <div class="ty-product-block__buy cm-product-controls {if $product.in_cart} ty-product-in-cart {/if}">
                     <div class="{if $smarty.capture.$old_price|trim || $smarty.capture.$clean_price|trim || $smarty.capture.$list_discount|trim}prices-container {/if}price-wrap">
                         {if $smarty.capture.$old_price|trim || $smarty.capture.$clean_price|trim || $smarty.capture.$list_discount|trim}
                         <div class="ty-product-prices">
@@ -82,26 +87,18 @@
 
 
                     {if $capture_options_vs_qty}{capture name="product_options"}{$smarty.capture.product_options nofilter}{/if}
-                    <div class="ty-product-block__field-group">
-
-
+                    <div class="ty-product-block__field-group ty-product-block__qty  {if $product.in_cart == "YesNo::YES"|enum}ty-cart-content__qty{/if}">
                         {assign var="qty" value="qty_`$obj_id`"}
                         {$smarty.capture.$qty nofilter}
 
-{*                        {assign var="min_qty" value="min_qty_`$obj_id`"}*}
-{*                        {$smarty.capture.$min_qty nofilter}*}
+                        {include file="buttons/update_cart.tpl"
+                             but_id="button_cart_`$obj_id`"
+                             but_meta="ty-btn--recalculate-cart hidden hidden-phone hidden-tablet"
+                             but_name="dispatch[checkout.update_qty]"
+                        }
                     </div>
 
-                    {include file="buttons/update_cart.tpl"
-                    but_id="button_cart"
-                    but_meta="ty-btn--recalculate-cart hidden hidden-phone hidden-tablet"
-                    but_name="dispatch[checkout.update_qty]"
-                    }
                     {if $capture_options_vs_qty}{/capture}{/if}
-
-
-
-
 
                     {if $capture_buttons}{capture name="buttons"}{/if}
                     <div class="ty-product-block__button">
